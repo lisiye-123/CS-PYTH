@@ -1,0 +1,3008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>计算机专业 · 道路选择 · 成长规划</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif; }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 30%, #0b0f1c, #02040a);
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    .main-container {
+      width: 1280px; max-width: 100%;
+      background: rgba(15, 25, 35, 0.78);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 255, 255, 0.1) inset;
+      padding: 2rem 2.5rem;
+      position: relative; overflow: hidden;
+    }
+    .main-container::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, #00f7ff, #a855f7, #00f7ff, transparent);
+      animation: scan 4s linear infinite;
+    }
+    @keyframes scan { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    /* ===== 登录/注册区域 ===== */
+    .auth-section { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; transition: opacity 0.4s ease; }
+    .auth-section.hide { opacity: 0; transform: scale(0.98); pointer-events: none; height: 0; overflow: hidden; padding: 0; margin: 0; display: none; }
+    .logo { display: flex; align-items: center; gap: 0.75rem; color: #e0f2fe; }
+    .logo i { font-size: 2.5rem; color: #00e0ff; filter: drop-shadow(0 0 12px #00e0ff); font-style: normal; }
+    .logo h1 { font-size: 2rem; font-weight: 600; letter-spacing: 2px; background: linear-gradient(135deg, #ffffff, #9ee6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .auth-tabs {
+      display: flex; width: 100%; max-width: 400px;
+      background: rgba(0, 20, 30, 0.7); border-radius: 60px; padding: 0.3rem;
+      border: 1px solid rgba(0, 255, 255, 0.2);
+    }
+    .auth-tab {
+      flex: 1; padding: 0.75rem 0; text-align: center; font-size: 1rem; font-weight: 500;
+      color: #8aa9bb; border-radius: 60px; cursor: pointer; transition: all 0.3s ease; user-select: none;
+    }
+    .auth-tab.active { background: linear-gradient(135deg, #00c8ff, #0066ff); color: #fff; box-shadow: 0 4px 12px -2px #0066ff80; }
+    .auth-tab:not(.active):hover { color: #b8e0f0; background: rgba(0, 255, 255, 0.05); }
+
+    .auth-form { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 1.2rem; }
+    .input-group { position: relative; width: 100%; }
+    .input-group input {
+      width: 100%; padding: 1rem 1.2rem 1rem 3rem;
+      background: rgba(0, 20, 30, 0.7);
+      border: 1px solid rgba(0, 255, 255, 0.25);
+      border-radius: 60px; font-size: 1rem; color: #e2f0fa; outline: none; transition: all 0.2s;
+    }
+    .input-group input:focus { border-color: #00e0ff; box-shadow: 0 0 0 3px rgba(0, 224, 255, 0.2); background: rgba(0, 30, 45, 0.9); }
+    .input-group input::placeholder { color: #8aa9bb; font-weight: 300; }
+    .input-group i { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); color: #00c8e0; font-size: 1.2rem; font-style: normal; }
+
+    .auth-btn {
+      background: linear-gradient(135deg, #00c8ff, #0066ff); border: none;
+      padding: 1rem; border-radius: 60px; font-size: 1.2rem; font-weight: 600;
+      color: #fff; letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 8px 20px -6px #0066ff80;
+    }
+    .auth-btn:hover { background: linear-gradient(135deg, #1ad2ff, #1a7cff); transform: scale(1.01); }
+    .auth-btn:active { transform: scale(0.98); }
+
+    .hint { font-size: 0.85rem; color: #87b9d0; text-align: center; line-height: 1.6; display: flex; justify-content: space-between; align-items: center; }
+    .hint span { color: #00e0ff; font-weight: 500; cursor: pointer; border-bottom: 1px dashed #00e0ff80; transition: 0.2s; }
+    .hint span:hover { color: #7ae0ff; }
+    .hint .forgot-pwd { font-size: 0.85rem; color: #ffb84d; border-bottom-color: #ffb84d80; }
+    .hint .forgot-pwd:hover { color: #ffd699; }
+
+    .hidden { display: none !important; }
+
+    /* ===== Toast ===== */
+    .toast-message {
+      position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-20px);
+      background: rgba(0, 40, 60, 0.95); border: 1px solid #00e0ff; border-radius: 40px;
+      padding: 0.9rem 2rem; color: #d0f0ff; font-size: 1rem; font-weight: 500;
+      box-shadow: 0 10px 30px -5px #00a8ff80; backdrop-filter: blur(10px);
+      z-index: 9999; opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none; white-space: nowrap; max-width: 90vw;
+    }
+    .toast-message.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast-message.success { border-color: #00ffaa; color: #ccffe6; box-shadow: 0 10px 30px -5px #00ffaa80; }
+    .toast-message.error { border-color: #ff4d6d; color: #ffccd5; box-shadow: 0 10px 30px -5px #ff4d6d80; }
+    .toast-message.admin { border-color: #ffb84d; color: #ffe4b5; box-shadow: 0 10px 30px -5px #ffb84d80; }
+
+    /* ===== 用户主内容 ===== */
+    .roadmap-section { display: none; flex-direction: column; gap: 1.5rem; opacity: 0; transition: opacity 0.5s ease; }
+    .roadmap-section.show { display: flex; opacity: 1; }
+
+    .welcome-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .welcome-header h2 { font-size: 1.8rem; font-weight: 500; background: linear-gradient(135deg, #b3f0ff, #7cc6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .welcome-header h2 i { font-style: normal; color: #00e0ff; margin-right: 6px; }
+    .user-greeting { font-size: 0.9rem; color: #7ab8d0; margin-top: 0.2rem; }
+    .user-greeting strong { color: #00e0ff; }
+
+    .logout-btn {
+      background: transparent; border: 1px solid #2e5f7a; color: #b0e0ff;
+      padding: 0.6rem 1.4rem; border-radius: 40px; font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+    }
+    .logout-btn:hover { background: rgba(0, 255, 255, 0.1); border-color: #00c8ff; color: white; }
+
+    /* 绑定手机号提示横幅 */
+    .bind-phone-banner {
+      background: linear-gradient(90deg, rgba(255, 184, 77, 0.15), transparent);
+      border: 1px solid rgba(255, 184, 77, 0.4);
+      border-radius: 1rem;
+      padding: 0.8rem 1.2rem;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      color: #ffd699; font-size: 0.9rem;
+      animation: fadeIn 0.5s ease;
+    }
+    .bind-phone-banner button {
+      background: #ffb84d; color: #1a0f00; border: none;
+      padding: 0.4rem 1rem; border-radius: 30px; font-weight: 600; font-size: 0.8rem;
+      cursor: pointer; transition: 0.2s; white-space: nowrap;
+    }
+    .bind-phone-banner button:hover { background: #ffd699; transform: scale(1.05); }
+
+    .main-nav {
+      display: flex; gap: 0.5rem; background: rgba(0, 20, 30, 0.6);
+      padding: 0.4rem; border-radius: 60px; border: 1px solid rgba(0, 200, 255, 0.15);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .main-nav::-webkit-scrollbar { display: none; }
+    .nav-item {
+      flex: 1; min-width: 120px; text-align: center; padding: 0.75rem 1rem;
+      border-radius: 60px; font-size: 0.95rem; font-weight: 500; color: #8ab8d0;
+      cursor: pointer; transition: all 0.25s ease; user-select: none; white-space: nowrap;
+    }
+    .nav-item.active { background: linear-gradient(135deg, #00c8ff, #0066ff); color: #fff; box-shadow: 0 4px 14px -4px #0066ff90; }
+    .nav-item:not(.active):hover { color: #c0e8ff; background: rgba(0, 255, 255, 0.06); }
+
+    .content-panel { display: none; animation: fadeIn 0.4s ease; }
+    .content-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* 通用详情页样式 */
+    .detail-page { display: none; animation: fadeIn 0.4s ease; }
+    .detail-page.active { display: block; }
+    .detail-header {
+      display: flex; align-items: center; gap: 1.5rem; margin-bottom: 1.5rem;
+      padding-bottom: 1.2rem; border-bottom: 1px solid rgba(0, 200, 255, 0.2); flex-wrap: wrap;
+    }
+    .detail-icon { font-size: 3.5rem; filter: drop-shadow(0 0 20px #00c8ff); min-width: 60px; text-align: center; }
+    .detail-title-area { flex: 1; min-width: 200px; }
+    .detail-title-area h3 { font-size: 1.6rem; color: #d6f0ff; font-weight: 600; margin-bottom: 0.2rem; }
+    .detail-title-area p { color: #8bb8d0; font-size: 0.9rem; line-height: 1.5; }
+    .back-btn {
+      background: transparent; border: 1px solid #2e5f7a; color: #b0e0ff;
+      padding: 0.5rem 1.2rem; border-radius: 40px; font-size: 0.85rem;
+      cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .back-btn:hover { background: rgba(0, 255, 255, 0.1); border-color: #00c8ff; color: white; }
+    .detail-body { display: flex; flex-direction: column; gap: 1.2rem; }
+    .detail-section { background: rgba(0, 20, 30, 0.5); border-radius: 1.5rem; padding: 1.4rem; border: 1px solid rgba(0, 200, 255, 0.15); }
+    .detail-section h4 { color: #aae6ff; font-size: 1.1rem; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+    .detail-section p { color: #9bc7dd; font-size: 0.92rem; line-height: 1.7; margin-bottom: 0.5rem; }
+    .detail-section ul { padding-left: 1.2rem; color: #9bc7dd; font-size: 0.92rem; line-height: 1.8; }
+    .detail-section .highlight { color: #7ae0ff; font-weight: 500; }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 0.5rem; }
+    .step-box { background: rgba(0, 30, 45, 0.7); border-radius: 1rem; padding: 1.1rem; border-left: 3px solid #00c8ff; }
+    .step-box h5 { color: #d6f0ff; font-size: 0.98rem; margin-bottom: 0.4rem; }
+    .step-box p { font-size: 0.85rem; line-height: 1.6; margin-bottom: 0; }
+    .cert-tag { display: inline-block; margin: 0.25rem 0.4rem 0.25rem 0; padding: 0.25rem 0.8rem; background: #4a2d6b60; border: 1px solid #7c4dab; border-radius: 30px; color: #d4b0ff; font-size: 0.78rem; }
+
+    /* 专业方向列表 */
+    .paths-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 0.5rem; }
+    .path-card {
+      background: rgba(0, 20, 30, 0.6); backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 200, 255, 0.2); border-radius: 1.8rem;
+      padding: 1.8rem 1.2rem; text-align: center; transition: all 0.25s ease;
+      cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 0.9rem;
+    }
+    .path-card:hover { transform: translateY(-8px); border-color: #00e0ff; background: rgba(0, 40, 55, 0.8); box-shadow: 0 18px 30px -10px #00b8ff60, 0 0 0 1px #00e0ff40 inset; }
+    .path-icon { font-size: 3rem; line-height: 1; filter: drop-shadow(0 0 10px #00c8ff); }
+    .path-card h3 { font-size: 1.3rem; color: #d6f0ff; font-weight: 600; }
+    .path-card p { font-size: 0.9rem; color: #9bc7dd; line-height: 1.4; font-weight: 300; }
+    .tag { margin-top: 0.3rem; font-size: 0.75rem; background: #00445580; padding: 0.25rem 0.9rem; border-radius: 50px; color: #aae0ff; border: 1px solid #1e6c8c; }
+
+    /* ===== 用户头像入口（点击进入个人主页） ===== */
+    .user-chip {
+      display: inline-flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem;
+      padding: 0.28rem 0.9rem 0.28rem 0.28rem; border-radius: 50px;
+      background: rgba(0, 200, 255, 0.07); border: 1px solid rgba(0, 200, 255, 0.22);
+      cursor: pointer; transition: all 0.25s ease;
+    }
+    .user-chip:hover { background: rgba(0, 200, 255, 0.16); border-color: #00e0ff; box-shadow: 0 0 20px -6px #00c8ff90; transform: translateY(-1px); }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #00e0ff, #7c4dab); color: #04141c;
+      font-weight: 700; font-size: 1rem;
+    }
+    .user-chip .chip-name { font-size: 0.9rem; color: #7ab8d0; }
+    .user-chip .chip-name strong { color: #00e0ff; }
+    .user-chip .chip-arrow { font-size: 1rem; color: #5f8fa8; line-height: 1; }
+    .user-chip:hover .chip-arrow { color: #00e0ff; }
+
+    /* ===== 管理员头像入口 ===== */
+    .admin-chip {
+      display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.35rem;
+      padding: 0.2rem 0.75rem 0.2rem 0.2rem; border-radius: 50px; cursor: pointer;
+      background: rgba(255, 184, 77, 0.08); border: 1px solid rgba(255, 184, 77, 0.28);
+      transition: all 0.25s ease; vertical-align: middle;
+    }
+    .admin-chip:hover { background: rgba(255, 184, 77, 0.18); border-color: #ffb84d; box-shadow: 0 0 18px -6px #ffb84d90; transform: translateY(-1px); }
+    .admin-chip .user-avatar { width: 26px; height: 26px; font-size: 0.85rem; background: linear-gradient(135deg, #ffb84d, #ff7a45); }
+    .admin-chip strong { color: #ffd699; font-weight: 600; }
+    .admin-chip .chip-arrow { color: #a08050; font-size: 0.95rem; line-height: 1; }
+    .admin-chip:hover .chip-arrow { color: #ffb84d; }
+    .admin-profile-section .profile-badge { background: #43330080; border-color: #8c6a1e; color: #ffd699; }
+    .admin-profile-section .profile-topbar-title { color: #ffd699; }
+    .admin-profile-section .profile-edit-btn { background: linear-gradient(135deg, #ffb84d, #ff8c42); border-color: #ffd699; }
+    .admin-profile-section .profile-avatar { background: linear-gradient(135deg, #ffb84d, #ff7a45); box-shadow: 0 0 30px -6px #ffb84da0; }
+    .admin-profile-section .profile-stat b { color: #ffb84d; }
+    .admin-profile-section .profile-stat:hover { border-color: #ffb84d60; }
+    .admin-profile-section .profile-tab.active { color: #ffb84d; border-bottom-color: #ffb84d; }
+    .admin-profile-section .profile-tab:hover { color: #ffd699; }
+    .admin-profile-section .profile-back:hover { border-color: #ffb84d; background: rgba(255, 184, 77, 0.1); color: #ffe4b5; }
+    .admin-profile-section .profile-hero {
+      background:
+        radial-gradient(circle at 12% 20%, #ffb84d33, transparent 55%),
+        radial-gradient(circle at 88% 0%, #ff7a4533, transparent 50%),
+        rgba(28, 20, 0, 0.72);
+      border-color: rgba(255, 184, 77, 0.2);
+    }
+
+    /* ===== 个人主页（独立页面，非弹窗） ===== */
+    .profile-section { display: none; flex-direction: column; gap: 1.2rem; opacity: 0; transition: opacity 0.35s ease; }
+    .profile-section.show { display: flex; opacity: 1; }
+
+    .profile-topbar { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; }
+    .profile-back {
+      padding: 0.55rem 1.2rem; border-radius: 40px; cursor: pointer; font-size: 0.88rem;
+      background: transparent; border: 1px solid #2e5f7a; color: #b0e0ff; transition: 0.2s;
+    }
+    .profile-back:hover { background: rgba(0, 255, 255, 0.1); border-color: #00c8ff; color: #fff; }
+    .profile-topbar-title { flex: 1; text-align: center; color: #d6f0ff; font-size: 1.02rem; letter-spacing: 0.08em; font-weight: 500; }
+    .profile-edit-btn {
+      padding: 0.55rem 1.2rem; border-radius: 40px; cursor: pointer; font-size: 0.88rem;
+      background: linear-gradient(135deg, #00c8ff, #0090c8); border: 1px solid #00e0ff; color: #04141c; font-weight: 600; transition: 0.2s;
+    }
+    .profile-edit-btn:hover { box-shadow: 0 0 20px -4px #00c8ffb0; transform: translateY(-1px); }
+
+    /* 封面信息区 */
+    .profile-hero {
+      position: relative; overflow: hidden; border-radius: 1.6rem; padding: 1.6rem 1.8rem;
+      display: flex; align-items: center; gap: 1.4rem;
+      background:
+        radial-gradient(circle at 12% 20%, #00c8ff33, transparent 55%),
+        radial-gradient(circle at 88% 0%, #7c4dab33, transparent 50%),
+        rgba(0, 26, 36, 0.85);
+      border: 1px solid rgba(0, 200, 255, 0.18);
+    }
+    .profile-hero::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(rgba(0, 200, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 200, 255, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .profile-avatar {
+      width: 92px; height: 92px; border-radius: 50%; flex-shrink: 0; position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.1rem; font-weight: 700; color: #04141c;
+      background: linear-gradient(135deg, #00e0ff, #7c4dab);
+      border: 3px solid #03202c; box-shadow: 0 0 30px -6px #00c8ffa0;
+    }
+    .profile-hero-main { flex: 1; min-width: 0; position: relative; z-index: 1; }
+    .profile-hero-main h2 { color: #e6f7ff; font-size: 1.5rem; font-weight: 600; word-break: break-all; }
+    .profile-handle { color: #5f8fa8; font-size: 0.8rem; margin-top: 0.15rem; }
+    .profile-badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
+    .profile-badge { font-size: 0.72rem; padding: 0.18rem 0.65rem; border-radius: 30px; background: #00445580; border: 1px solid #1e6c8c; color: #aae0ff; }
+    .profile-badge.warn { background: #43330080; border-color: #8c6a1e; color: #ffd699; }
+    .profile-bio { color: #9bc7dd; font-size: 0.9rem; line-height: 1.65; margin-top: 0.7rem; }
+
+    /* 数据概览 */
+    .profile-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; }
+    .profile-stat {
+      background: rgba(0, 30, 42, 0.7); border: 1px solid rgba(0, 200, 255, 0.13);
+      border-radius: 1.1rem; padding: 0.9rem 0.5rem; text-align: center; transition: 0.2s;
+    }
+    .profile-stat:hover { border-color: #00c8ff60; background: rgba(0, 40, 55, 0.85); }
+    .profile-stat b { display: block; color: #00e0ff; font-size: 1.2rem; font-weight: 600; }
+    .profile-stat span { font-size: 0.73rem; color: #7ab8d0; }
+
+    /* 内容区 */
+    .profile-card-box { background: rgba(0, 20, 30, 0.55); border: 1px solid rgba(0, 200, 255, 0.14); border-radius: 1.4rem; padding: 1.1rem 1.4rem 1.3rem; }
+    .profile-tabs { display: flex; gap: 0.2rem; border-bottom: 1px solid rgba(0, 200, 255, 0.14); margin-bottom: 0.9rem; }
+    .profile-tab { padding: 0.6rem 1.1rem; font-size: 0.9rem; color: #7ab8d0; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s ease; }
+    .profile-tab:hover { color: #aae0ff; }
+    .profile-tab.active { color: #00e0ff; border-bottom-color: #00e0ff; }
+    .profile-pane { display: none; }
+    .profile-pane.active { display: block; }
+    .info-row { display: flex; justify-content: space-between; gap: 1rem; padding: 0.72rem 0.15rem; border-bottom: 1px dashed rgba(0, 200, 255, 0.12); font-size: 0.9rem; color: #9bc7dd; }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .info-label { color: #7ab8d0; flex-shrink: 0; }
+    .info-row .info-value { color: #d6f0ff; font-weight: 500; text-align: right; word-break: break-all; }
+    .profile-empty { text-align: center; padding: 2.4rem 0; color: #5f8fa8; font-size: 0.88rem; line-height: 1.9; }
+
+    /* 编辑资料表单 */
+    .profile-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 1rem; }
+    .form-item { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-item.full { grid-column: 1 / -1; }
+    .form-item label { font-size: 0.82rem; color: #7ab8d0; }
+    .form-item label .req { color: #ff6b8a; margin-left: 2px; }
+    .form-item input, .form-item select, .form-item textarea {
+      background: rgba(0, 30, 42, 0.9); border: 1px solid rgba(0, 200, 255, 0.2); border-radius: 0.8rem;
+      padding: 0.65rem 0.9rem; color: #e6f7ff; font-size: 0.9rem; font-family: inherit; outline: none; transition: 0.2s;
+    }
+    .form-item input:focus, .form-item select:focus, .form-item textarea:focus { border-color: #00e0ff; box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.12); }
+    .form-item textarea { resize: vertical; min-height: 82px; line-height: 1.6; }
+    .form-item .counter { align-self: flex-end; font-size: 0.72rem; color: #5f8fa8; margin-top: -0.15rem; }
+    .avatar-picker { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .avatar-opt {
+      width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; cursor: pointer; background: rgba(0, 40, 55, 0.8);
+      border: 1px solid rgba(0, 200, 255, 0.2); transition: 0.2s;
+    }
+    .avatar-opt:hover { border-color: #00e0ff; transform: translateY(-2px); }
+    .avatar-opt.active { border-color: #00e0ff; background: rgba(0, 200, 255, 0.18); box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.16); }
+
+    .profile-actions { display: flex; gap: 0.7rem; margin-top: 1.2rem; flex-wrap: wrap; }
+    .profile-btn {
+      flex: 1; min-width: 140px; padding: 0.72rem 1rem; border-radius: 50px; cursor: pointer;
+      font-size: 0.88rem; background: rgba(0, 200, 255, 0.08); color: #aae0ff;
+      border: 1px solid rgba(0, 200, 255, 0.3); transition: all 0.2s ease;
+    }
+    .profile-btn:hover { background: rgba(0, 200, 255, 0.18); border-color: #00e0ff; color: #fff; }
+    .profile-btn.primary { background: linear-gradient(135deg, #00c8ff, #0090c8); color: #04141c; border-color: #00e0ff; font-weight: 600; }
+    .profile-btn.primary:hover { color: #04141c; box-shadow: 0 0 20px -4px #00c8ffb0; }
+    .profile-btn.danger { background: rgba(255, 77, 109, 0.08); border-color: rgba(255, 77, 109, 0.4); color: #ff9fb1; }
+    .profile-btn.danger:hover { background: rgba(255, 77, 109, 0.18); border-color: #ff4d6d; color: #fff; }
+    @media (max-width: 600px) {
+      .profile-stats { grid-template-columns: repeat(2, 1fr); }
+      .profile-hero { flex-direction: column; text-align: center; padding: 1.4rem 1.1rem; }
+      .profile-hero-main h2 { font-size: 1.3rem; }
+      .profile-badges { justify-content: center; }
+      .profile-avatar { width: 76px; height: 76px; font-size: 1.8rem; }
+      .profile-topbar-title { display: none; }
+      .profile-card-box { padding: 1rem 0.9rem 1.1rem; }
+    }
+
+    /* 大学规划时间轴 */
+    .timeline { display: flex; flex-direction: column; gap: 1rem; margin-top: 0.8rem; }
+    .timeline-item {
+      display: flex; gap: 1.2rem; background: rgba(0, 20, 30, 0.5);
+      border-radius: 1.5rem; padding: 1.2rem 1.5rem; cursor: pointer;
+      border-left: 4px solid #00c8ff; transition: all 0.25s ease;
+    }
+    .timeline-item:hover { background: rgba(0, 40, 55, 0.7); transform: translateX(6px); border-left-color: #7ae0ff; }
+    .timeline-year { font-size: 1.3rem; font-weight: 700; color: #00e0ff; min-width: 80px; }
+    .timeline-content h4 { color: #d6f0ff; font-size: 1.1rem; margin-bottom: 0.3rem; display: flex; justify-content: space-between; align-items: center; }
+    .timeline-content h4 span { font-size: 0.8rem; color: #5f8fa8; font-weight: 400; }
+    .timeline-content p { color: #9bc7dd; font-size: 0.9rem; line-height: 1.6; font-weight: 300; }
+
+    /* 证书卡片 */
+    .cert-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem; margin-top: 0.8rem; }
+    .cert-card {
+      background: rgba(0, 20, 30, 0.6); backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 200, 255, 0.2); border-radius: 1.5rem;
+      padding: 1.4rem 1.3rem; transition: all 0.25s ease; cursor: pointer;
+      display: flex; flex-direction: column; gap: 0.7rem;
+    }
+    .cert-card:hover { border-color: #00e0ff; transform: translateY(-4px); background: rgba(0, 40, 55, 0.8); }
+    .cert-header { display: flex; align-items: center; gap: 0.7rem; }
+    .cert-icon { font-size: 1.8rem; }
+    .cert-card h4 { color: #d6f0ff; font-size: 1.05rem; }
+    .cert-card p { color: #9bc7dd; font-size: 0.85rem; line-height: 1.55; font-weight: 300; }
+    .cert-meta { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .cert-meta span { font-size: 0.72rem; background: #00334480; padding: 0.2rem 0.7rem; border-radius: 30px; color: #9dd4ee; border: 1px solid #1e6c8c; }
+    .cert-meta .level { background: #4a2d6b80; border-color: #7c4dab; color: #d4b0ff; }
+
+    /* 证书分区标题 */
+    .cert-section-title {
+      font-size: 1.1rem; color: #b3f0ff; margin: 1.5rem 0 0.5rem 0;
+      padding-left: 0.5rem; border-left: 3px solid #00c8ff;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .cert-section-title:first-of-type { margin-top: 0; }
+
+    /* 技能清单 */
+    .skill-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem; margin-top: 0.8rem; }
+    .skill-card { background: rgba(0, 20, 30, 0.6); border-radius: 1.5rem; padding: 1.4rem 1.3rem; border: 1px solid rgba(0, 200, 255, 0.15); }
+    .skill-card h4 { color: #aae6ff; font-size: 1rem; margin-bottom: 0.8rem; }
+    .skill-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px dashed #1b3b4b; font-size: 0.88rem; color: #9bc7dd; gap: 0.6rem; cursor: pointer; transition: 0.2s; }
+    .skill-item:hover { background: rgba(0, 40, 55, 0.4); padding-left: 5px; border-radius: 8px; }
+    .skill-item:last-child { border-bottom: none; }
+    .skill-left { display: flex; align-items: center; gap: 0.6rem; }
+    .skill-check { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #2e5f7a; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: transparent; transition: 0.2s; flex-shrink: 0; }
+    .skill-item.mastered .skill-check { background: #00c8ff; border-color: #00c8ff; color: #fff; }
+    .skill-item.mastered .skill-name { text-decoration: line-through; opacity: 0.6; }
+    .skill-bar { width: 70px; height: 6px; background: #0a2533; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+    .skill-bar-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, #00c8ff, #7c4dff); }
+
+    /* 学习资源列表 */
+    .resource-list { display: flex; flex-direction: column; gap: 0.9rem; margin-top: 0.8rem; }
+    .resource-item { display: flex; gap: 1rem; background: rgba(0, 20, 30, 0.5); border-radius: 1.3rem; padding: 1.1rem 1.4rem; border: 1px solid transparent; transition: all 0.25s; cursor: pointer; }
+    .resource-item:hover { border-color: #00c8ff40; background: rgba(0, 40, 55, 0.7); transform: translateX(6px); }
+    .resource-icon { font-size: 1.6rem; min-width: 40px; text-align: center; }
+    .resource-text h4 { color: #d6f0ff; font-size: 1rem; margin-bottom: 0.25rem; }
+    .resource-text p { color: #8bb8d0; font-size: 0.85rem; line-height: 1.5; }
+
+    /* ===== 自习室面板 ===== */
+    .study-room {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 4rem 2rem; text-align: center;
+    }
+    .study-icon { font-size: 5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 0 30px #00c8ff); }
+    .study-room h3 { font-size: 2rem; color: #d6f0ff; margin-bottom: 1rem; }
+    .study-room p { color: #9bc7dd; font-size: 1rem; margin-bottom: 2.5rem; max-width: 500px; line-height: 1.6; }
+    .start-study-btn {
+      background: linear-gradient(135deg, #00ffaa, #00c8ff); border: none;
+      padding: 1.2rem 3rem; border-radius: 60px; font-size: 1.3rem; font-weight: 600;
+      color: #0b0f1c; cursor: pointer; transition: all 0.3s ease;
+      box-shadow: 0 10px 30px -5px #00ffaa80;
+    }
+    .start-study-btn:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 15px 40px -5px #00ffaa; }
+
+    /* 用户自习记录列表 */
+    .my-study-list {
+      margin-top: 3rem; width: 100%; max-width: 800px; text-align: left;
+    }
+    .my-study-list h4 {
+      color: #b3f0ff; font-size: 1.2rem; margin-bottom: 1rem;
+      border-left: 3px solid #00c8ff; padding-left: 0.5rem;
+    }
+    .my-study-item {
+      background: rgba(0, 20, 30, 0.6); border-radius: 1rem; padding: 1rem 1.2rem;
+      margin-bottom: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem;
+      border: 1px solid rgba(0, 200, 255, 0.15); transition: 0.2s;
+    }
+    .my-study-item:hover { border-color: #00c8ff50; background: rgba(0, 30, 45, 0.8); }
+    .my-study-meta {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;
+      font-size: 0.85rem; color: #8bb8d0;
+    }
+    .my-study-meta .duration { color: #00ffaa; font-weight: 600; font-size: 1rem; }
+    .my-study-note { color: #d6f0ff; font-size: 0.95rem; line-height: 1.5; }
+
+    /* 全屏自习界面 */
+    .fullscreen-study {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: radial-gradient(circle at center, #0a1c2b, #02060a);
+      z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center;
+      color: #fff;
+    }
+    .fullscreen-study.active { display: flex; }
+    
+    /* 计时模式容器 */
+    .timer-view {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 100%; height: 100%;
+    }
+    .study-timer-display {
+      font-size: 8rem; font-weight: 700; color: #00e0ff; letter-spacing: 5px;
+      text-shadow: 0 0 40px rgba(0, 224, 255, 0.4);
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 3rem;
+    }
+    .study-action-btns { display: flex; gap: 1.5rem; }
+    .study-action-btns button {
+      padding: 1rem 2.5rem; border-radius: 50px; font-size: 1.1rem; font-weight: 600;
+      cursor: pointer; transition: 0.2s;
+    }
+    .end-study-btn {
+      background: rgba(255, 77, 109, 0.2); border: 1px solid #ff4d6d; color: #ff8fa3;
+    }
+    .end-study-btn:hover { background: rgba(255, 77, 109, 0.4); color: #fff; }
+    .exit-fullscreen-btn {
+      background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); color: #d0f0ff;
+    }
+    .exit-fullscreen-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+    /* 登记模式容器（内嵌在全屏界面中） */
+    .record-view {
+      display: none; flex-direction: column; align-items: center; justify-content: center;
+      width: 100%; max-width: 600px; padding: 2rem;
+      background: rgba(15, 25, 35, 0.9); border-radius: 2rem; border: 1px solid rgba(0, 200, 255, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.4s ease;
+    }
+    .record-view.active { display: flex; }
+    .record-view h3 { font-size: 1.8rem; color: #00e0ff; margin-bottom: 0.5rem; }
+    .record-view .duration-tip { font-size: 1rem; color: #9bc7dd; margin-bottom: 2rem; }
+    .record-view .duration-tip span { color: #00ffaa; font-weight: 700; }
+    .record-view textarea {
+      width: 100%; height: 150px; background: rgba(0, 20, 30, 0.8);
+      border: 1px solid #2e5f7a; border-radius: 1rem; padding: 1.2rem;
+      color: #fff; font-size: 1rem; resize: none; outline: none; transition: 0.2s;
+      margin-bottom: 1.5rem; line-height: 1.5;
+    }
+    .record-view textarea:focus { border-color: #00e0ff; box-shadow: 0 0 0 3px rgba(0, 224, 255, 0.2); }
+    .record-view .save-record-btn {
+      width: 100%; padding: 1rem; border-radius: 50px;
+      background: linear-gradient(135deg, #00ffaa, #00c8ff); border: none;
+      color: #0b0f1c; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: 0.2s;
+    }
+    .record-view .save-record-btn:hover { transform: scale(1.02); box-shadow: 0 10px 30px -5px #00ffaa80; }
+
+    /* 小窗模式悬浮球 */
+    .mini-player {
+      position: fixed; bottom: 30px; right: 30px;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: linear-gradient(135deg, #0a1c2b, #02060a);
+      border: 2px solid #00e0ff; box-shadow: 0 10px 30px rgba(0, 224, 255, 0.3);
+      z-index: 9998; display: none; flex-direction: column; align-items: center; justify-content: center;
+      cursor: pointer; transition: 0.3s;
+    }
+    .mini-player.active { display: flex; }
+    .mini-player:hover { transform: scale(1.05); }
+    .mini-timer { font-size: 1.3rem; font-weight: 700; color: #00e0ff; margin-top: 0.5rem; font-variant-numeric: tabular-nums; }
+    .mini-icon { font-size: 2.5rem; }
+
+    /* ===== AI 问答面板 ===== */
+    .ai-panel { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem; }
+    .ai-hero {
+      background: linear-gradient(135deg, rgba(0, 100, 200, 0.15), rgba(124, 77, 255, 0.15));
+      border: 1px solid rgba(0, 200, 255, 0.3); border-radius: 2rem;
+      padding: 2.5rem 2rem; text-align: center; position: relative; overflow: hidden;
+    }
+    .ai-hero::before {
+      content: ''; position: absolute; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, rgba(0, 224, 255, 0.08) 0%, transparent 60%);
+      animation: rotate 15s linear infinite; pointer-events: none;
+    }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .ai-hero-icon { font-size: 4rem; margin-bottom: 1rem; filter: drop-shadow(0 0 20px #00c8ff); animation: float 3s ease-in-out infinite; position: relative; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .ai-hero h3 { font-size: 1.8rem; color: #d6f0ff; margin-bottom: 0.8rem; font-weight: 600; position: relative; }
+    .ai-hero p { color: #9bc7dd; font-size: 1rem; line-height: 1.7; max-width: 600px; margin: 0 auto 1.5rem; position: relative; font-weight: 300; }
+    .ai-hero p strong { color: #00e0ff; font-weight: 600; }
+    .ai-jump-btn {
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      background: linear-gradient(135deg, #4d6bfe, #8b5cf6);
+      border: none; padding: 1.1rem 2.5rem; border-radius: 60px;
+      font-size: 1.15rem; font-weight: 600; color: #fff; letter-spacing: 1px;
+      cursor: pointer; transition: all 0.25s ease;
+      box-shadow: 0 12px 30px -8px #4d6bfeaa, 0 0 30px #8b5cf640;
+      position: relative; text-decoration: none;
+    }
+    .ai-jump-btn:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 18px 40px -8px #4d6bfe, 0 0 50px #8b5cf680; }
+    .ai-jump-btn:active { transform: translateY(-1px) scale(0.99); }
+    .ai-jump-btn i { font-style: normal; font-size: 1.3rem; }
+
+    .ai-questions { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+    .ai-q-card {
+      background: rgba(0, 20, 30, 0.6); border: 1px solid rgba(0, 200, 255, 0.2);
+      border-radius: 1.5rem; padding: 1.3rem 1.4rem; cursor: pointer;
+      transition: all 0.25s ease; display: flex; gap: 0.9rem; align-items: flex-start;
+    }
+    .ai-q-card:hover { border-color: #00e0ff; background: rgba(0, 40, 55, 0.85); transform: translateY(-4px); box-shadow: 0 15px 30px -12px #00b8ff80; }
+    .ai-q-icon { font-size: 1.6rem; min-width: 40px; text-align: center; filter: drop-shadow(0 0 8px #00c8ff); }
+    .ai-q-text h5 { color: #d6f0ff; font-size: 0.98rem; margin-bottom: 0.3rem; font-weight: 600; line-height: 1.4; }
+    .ai-q-text p { color: #8bb8d0; font-size: 0.82rem; line-height: 1.5; }
+
+    .ai-note {
+      text-align: center; font-size: 0.85rem; color: #5f8fa8; line-height: 1.6;
+      padding: 0.8rem; background: rgba(0, 30, 45, 0.4); border-radius: 1rem; border: 1px dashed #1e5f7a;
+    }
+    .ai-note strong { color: #00c8ff; }
+
+    /* ===== 管理员后台 ===== */
+    .admin-section { display: none; flex-direction: column; gap: 1.5rem; opacity: 0; transition: opacity 0.5s ease; }
+    .admin-section.show { display: flex; opacity: 1; }
+
+    .admin-header {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+    }
+    .admin-header h2 {
+      font-size: 1.7rem; font-weight: 500;
+      background: linear-gradient(135deg, #ffd699, #ffb84d);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .admin-header h2 i { font-style: normal; color: #ffb84d; margin-right: 6px; }
+    .admin-subtitle { font-size: 0.85rem; color: #a08050; margin-top: 0.2rem; }
+    .admin-subtitle strong { color: #ffd699; }
+
+    .admin-nav {
+      display: flex; gap: 0.5rem; background: rgba(30, 20, 10, 0.6);
+      padding: 0.4rem; border-radius: 60px; border: 1px solid rgba(255, 184, 77, 0.2);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .admin-nav::-webkit-scrollbar { display: none; }
+    .admin-nav-item {
+      flex: 1; min-width: 130px; text-align: center; padding: 0.7rem 1rem;
+      border-radius: 60px; font-size: 0.92rem; font-weight: 500; color: #b89870;
+      cursor: pointer; transition: all 0.25s ease; user-select: none; white-space: nowrap;
+    }
+    .admin-nav-item.active {
+      background: linear-gradient(135deg, #ffb84d, #ff8c42);
+      color: #1a0f00; font-weight: 600;
+      box-shadow: 0 4px 14px -4px #ffb84d90;
+    }
+    .admin-nav-item:not(.active):hover { color: #ffd699; background: rgba(255, 184, 77, 0.08); }
+
+    .admin-panel { display: none; animation: fadeIn 0.4s ease; }
+    .admin-panel.active { display: block; }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.2rem; margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: rgba(30, 20, 10, 0.6);
+      border: 1px solid rgba(255, 184, 77, 0.2);
+      border-radius: 1.5rem; padding: 1.4rem 1.3rem;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(180deg, #ffb84d, #ff8c42);
+    }
+    .stat-card:hover { border-color: #ffb84d80; background: rgba(50, 30, 10, 0.7); transform: translateY(-3px); }
+    .stat-icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: #ffd699; letter-spacing: 1px; }
+    .stat-label { font-size: 0.85rem; color: #b89870; margin-top: 0.3rem; }
+
+    .admin-table-wrap {
+      background: rgba(30, 20, 10, 0.5);
+      border: 1px solid rgba(255, 184, 77, 0.15);
+      border-radius: 1.5rem; overflow: hidden;
+    }
+    .admin-table-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(255, 184, 77, 0.15);
+      flex-wrap: wrap; gap: 0.8rem;
+    }
+    .admin-table-header h4 { color: #ffd699; font-size: 1.1rem; font-weight: 600; }
+    .admin-search {
+      background: rgba(0, 20, 30, 0.8);
+      border: 1px solid rgba(255, 184, 77, 0.3);
+      border-radius: 40px; padding: 0.6rem 1.2rem;
+      color: #ffd699; font-size: 0.88rem; outline: none;
+      min-width: 220px; transition: 0.2s;
+    }
+    .admin-search:focus { border-color: #ffb84d; box-shadow: 0 0 0 3px rgba(255, 184, 77, 0.15); }
+    .admin-search::placeholder { color: #8a7050; }
+
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th {
+      text-align: left; padding: 0.9rem 1.2rem;
+      font-size: 0.78rem; font-weight: 600; color: #b89870;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 184, 77, 0.15);
+      background: rgba(0, 0, 0, 0.15);
+    }
+    .admin-table td {
+      padding: 0.95rem 1.2rem; font-size: 0.88rem; color: #d6c0a0;
+      border-bottom: 1px solid rgba(255, 184, 77, 0.08);
+    }
+    .admin-table tbody tr { transition: 0.2s; }
+    .admin-table tbody tr:hover { background: rgba(255, 184, 77, 0.06); }
+    .admin-table tbody tr:last-child td { border-bottom: none; }
+
+    .user-cell { display: flex; align-items: center; gap: 0.7rem; }
+    .user-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg, #ffb84d, #ff8c42);
+      display: flex; align-items: center; justify-content: center;
+      color: #1a0f00; font-weight: 700; font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .user-name { color: #ffe4b5; font-weight: 500; }
+    .user-sub { font-size: 0.72rem; color: #8a7050; }
+
+    .status-badge {
+      display: inline-block; padding: 0.25rem 0.8rem; border-radius: 30px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .status-active { background: #00ffaa20; color: #6ee7b7; border: 1px solid #00ffaa50; }
+    .status-banned { background: #ff4d6d20; color: #ff8fa3; border: 1px solid #ff4d6d50; }
+    .status-phone { font-size: 0.75rem; color: #7ae0ff; display: inline-flex; align-items: center; gap: 0.2rem;}
+
+    .action-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .action-btn {
+      background: rgba(255, 184, 77, 0.1);
+      border: 1px solid rgba(255, 184, 77, 0.35);
+      color: #ffd699; padding: 0.35rem 0.85rem;
+      border-radius: 30px; font-size: 0.75rem; cursor: pointer;
+      transition: 0.2s; white-space: nowrap;
+    }
+    .action-btn:hover { background: rgba(255, 184, 77, 0.25); color: #fff; }
+    .action-btn.danger { border-color: #ff4d6d80; color: #ff8fa3; background: rgba(255, 77, 109, 0.1); }
+    .action-btn.danger:hover { background: rgba(255, 77, 109, 0.3); color: #fff; }
+    .action-btn.success { border-color: #00ffaa80; color: #6ee7b7; background: rgba(0, 255, 170, 0.1); }
+    .action-btn.success:hover { background: rgba(0, 255, 170, 0.25); color: #fff; }
+
+    .question-list { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 0.5rem; }
+    .question-item {
+      background: rgba(30, 20, 10, 0.5);
+      border: 1px solid rgba(255, 184, 77, 0.15);
+      border-radius: 1.3rem; padding: 1.1rem 1.4rem;
+      transition: all 0.25s ease;
+      border-left: 3px solid #ffb84d;
+    }
+    .question-item:hover { background: rgba(50, 30, 10, 0.7); transform: translateX(4px); border-left-color: #ffd699; }
+    .question-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem; margin-bottom: 0.5rem; flex-wrap: wrap;
+    }
+    .question-user { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: #ffd699; }
+    .question-user i { font-style: normal; }
+    .question-time { font-size: 0.75rem; color: #8a7050; }
+    .question-content { color: #d6c0a0; font-size: 0.9rem; line-height: 1.5; }
+    .question-tag {
+      display: inline-block; font-size: 0.7rem; padding: 0.15rem 0.6rem;
+      border-radius: 20px; background: rgba(255, 184, 77, 0.15);
+      color: #ffd699; border: 1px solid rgba(255, 184, 77, 0.3);
+      margin-top: 0.4rem;
+    }
+
+    .empty-state {
+      text-align: center; padding: 3rem 1rem; color: #8a7050;
+    }
+    .empty-state .empty-icon { font-size: 3rem; margin-bottom: 0.8rem; opacity: 0.5; }
+    .empty-state p { font-size: 0.9rem; line-height: 1.6; }
+
+    .admin-logout {
+      background: transparent; border: 1px solid #ff4d6d60; color: #ff8fa3;
+      padding: 0.6rem 1.4rem; border-radius: 40px; font-size: 0.88rem; cursor: pointer; transition: 0.2s;
+    }
+    .admin-logout:hover { background: rgba(255, 77, 109, 0.15); border-color: #ff4d6d; color: #fff; }
+
+    @media (max-width: 650px) {
+      .main-container { padding: 1.5rem 1rem; }
+      .logo h1 { font-size: 1.5rem; }
+      .welcome-header h2, .admin-header h2 { font-size: 1.3rem; }
+      .nav-item, .admin-nav-item { font-size: 0.82rem; padding: 0.6rem; min-width: 95px; }
+      .timeline-item { flex-direction: column; gap: 0.5rem; }
+      .timeline-year { min-width: auto; }
+      .ai-hero { padding: 1.8rem 1.2rem; }
+      .ai-hero h3 { font-size: 1.4rem; }
+      .ai-jump-btn { padding: 0.9rem 1.8rem; font-size: 1rem; }
+      .admin-table th, .admin-table td { padding: 0.7rem 0.8rem; font-size: 0.8rem; }
+      .admin-search { min-width: 100%; }
+      .detail-header { flex-direction: column; align-items: flex-start; }
+      .study-timer-display { font-size: 4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast-message" id="toastMessage"></div>
+
+<div class="main-container">
+
+  <!-- ========== 登录/注册/找回密码 ========== -->
+  <div class="auth-section" id="authSection">
+    <div class="logo"><i>⬤</i><h1>CS PATH</h1></div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" id="tabLogin">登录</div>
+      <div class="auth-tab" id="tabRegister">注册</div>
+    </div>
+    
+    <!-- 登录表单 -->
+    <div class="auth-form" id="loginForm">
+      <div class="input-group"><i>👤</i><input type="text" id="loginUsername" placeholder="用户名" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
+      <div class="input-group"><i>🔒</i><input type="password" id="loginPassword" placeholder="密码" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
+      <button class="auth-btn" id="loginBtn">登 录</button>
+      <div class="hint">
+        <span id="switchToRegister">立即注册</span>
+        <span class="forgot-pwd" id="goForgotPwd">忘记密码？</span>
+      </div>
+    </div>
+
+    <!-- 注册表单 -->
+    <div class="auth-form hidden" id="registerForm">
+      <div class="input-group"><i>👤</i><input type="text" id="regUsername" placeholder="用户名" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
+      <div class="input-group"><i>🔒</i><input type="password" id="regPassword" placeholder="密码 (至少6位)" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
+      <div class="input-group"><i>✅</i><input type="password" id="regConfirmPassword" placeholder="确认密码" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
+      <button class="auth-btn" id="registerBtn">注 册</button>
+      <div class="hint"><span id="switchToLogin">返回登录</span></div>
+    </div>
+
+    <!-- 找回密码表单 -->
+    <div class="auth-form hidden" id="forgotForm">
+      <div class="input-group"><i>👤</i><input type="text" id="forgotUsername" placeholder="您的用户名" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
+      <div class="input-group"><i>📱</i><input type="text" id="forgotPhone" placeholder="绑定的手机号" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
+      <div class="input-group"><i>🔒</i><input type="password" id="forgotNewPwd" placeholder="新密码 (至少6位)" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')"></div>
+      <button class="auth-btn" id="resetPwdBtn" style="background: linear-gradient(135deg, #ffb84d, #ff8c42);">重 置 密 码</button>
+      <div class="hint"><span id="backToLoginBtn">← 返回登录</span></div>
+    </div>
+  </div>
+
+  <!-- ========== 用户主内容 ========== -->
+  <div class="roadmap-section" id="roadmapSection">
+    <div class="welcome-header">
+      <div>
+        <h2><i>🧭</i> 计算机专业成长规划</h2>
+        <div class="user-chip" id="userChip" title="点击查看个人主页">
+          <span class="user-avatar" id="chipAvatar">👤</span>
+          <span class="chip-name">👋 欢迎，<strong id="greetUser">同学</strong></span>
+          <span class="chip-arrow">›</span>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">↻ 退出登录</button>
+    </div>
+
+    <!-- 绑定手机号提示 -->
+    <div class="bind-phone-banner hidden" id="bindPhoneBanner">
+      <span>⚠️ 您尚未绑定手机号，绑定后可用于密码找回，确保账号安全。</span>
+      <button id="goBindPhoneBtn">立即绑定</button>
+    </div>
+
+    <div class="main-nav">
+      <div class="nav-item active" data-panel="paths">🎯 专业方向</div>
+      <div class="nav-item" data-panel="plan">📅 大学规划</div>
+      <div class="nav-item" data-panel="certs">📜 证书考取</div>
+      <div class="nav-item" data-panel="skills">⚙️ 技能清单</div>
+      <div class="nav-item" data-panel="resources">📚 学习资源</div>
+      <div class="nav-item" data-panel="study">⏱️ 自习室</div>
+      <div class="nav-item" data-panel="ai">🤖 AI问答</div>
+    </div>
+
+    <!-- ========== 专业方向面板 ========== -->
+    <div class="content-panel active" id="panel-paths">
+      <div id="pathListView">
+        <div class="paths-grid">
+          <div class="path-card" data-path="ai"><div class="path-icon">🤖</div><h3>人工智能</h3><p>神经网络 · 大模型 · 自动驾驶</p><div class="tag">高需求</div></div>
+          <div class="path-card" data-path="fullstack"><div class="path-icon">⚡</div><h3>全栈开发</h3><p>React · Node · 云原生</p><div class="tag">全能型</div></div>
+          <div class="path-card" data-path="security"><div class="path-icon">🛡️</div><h3>网络安全</h3><p>攻防 · 加密 · 合规</p><div class="tag">急缺</div></div>
+          <div class="path-card" data-path="data"><div class="path-icon">📊</div><h3>数据科学</h3><p>Spark · 统计 · 洞察</p><div class="tag">核心</div></div>
+          <div class="path-card" data-path="blockchain"><div class="path-icon">⛓️</div><h3>区块链 / Web3</h3><p>Solidity · DeFi · NFT</p><div class="tag">前沿</div></div>
+          <div class="path-card" data-path="embedded"><div class="path-icon">📟</div><h3>嵌入式 / IoT</h3><p>ARM · 驱动 · 低功耗</p><div class="tag">硬核</div></div>
+          <div class="path-card" data-path="dev"><div class="path-icon">📱</div><h3>开发类</h3><p>移动 · 游戏 · 音视频</p><div class="tag">就业广</div></div>
+          <div class="path-card" data-path="infra"><div class="path-icon">☁️</div><h3>基础架构类</h3><p>云计算 · 数据库 · 大数据</p><div class="tag">高薪</div></div>
+        </div>
+      </div>
+      <div id="pathDetailView" class="detail-page">
+        <div class="detail-header">
+          <div class="detail-icon" id="detailIcon">🤖</div>
+          <div class="detail-title-area">
+            <h3 id="detailTitle">人工智能</h3>
+            <p id="detailSubtitle">机器学习、深度学习、计算机视觉、NLP</p>
+          </div>
+          <button class="back-btn" id="backToListBtn">← 返回方向列表</button>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+      </div>
+    </div>
+
+    <!-- ========== 大学规划面板 ========== -->
+    <div class="content-panel" id="panel-plan">
+      <div id="planListView">
+        <div class="timeline">
+          <div class="timeline-item" data-year="1">
+            <div class="timeline-year">大一</div>
+            <div class="timeline-content"><h4>打牢基础，广泛探索 <span>点击查看详情 →</span></h4><p>学好 C语言 / Python、高等数学、离散数学。加入技术社团，培养编程兴趣。</p></div>
+          </div>
+          <div class="timeline-item" data-year="2">
+            <div class="timeline-year">大二</div>
+            <div class="timeline-content"><h4>确定方向，深入一门语言 <span>点击查看详情 →</span></h4><p>学习数据结构、操作系统、计算机网络、数据库。参与 GitHub 开源项目。</p></div>
+          </div>
+          <div class="timeline-item" data-year="3">
+            <div class="timeline-year">大三</div>
+            <div class="timeline-content"><h4>项目实战 + 实习准备 <span>点击查看详情 →</span></h4><p>完成完整项目，准备技术简历。刷 LeetCode，开始投递暑期实习。</p></div>
+          </div>
+          <div class="timeline-item" data-year="4">
+            <div class="timeline-year">大四</div>
+            <div class="timeline-content"><h4>冲刺 offer 或 升学 <span>点击查看详情 →</span></h4><p>秋招 / 春招冲刺，参加校园招聘。完善毕业设计，争取优秀论文。</p></div>
+          </div>
+        </div>
+      </div>
+      <div id="planDetailView" class="detail-page">
+        <div class="detail-header">
+          <div class="detail-icon" id="planDetailIcon">📅</div>
+          <div class="detail-title-area">
+            <h3 id="planDetailTitle">大一规划详情</h3>
+            <p id="planDetailSubtitle">打牢基础，广泛探索</p>
+          </div>
+          <button class="back-btn" id="backToPlanBtn">← 返回大学规划</button>
+        </div>
+        <div class="detail-body" id="planDetailBody"></div>
+      </div>
+    </div>
+
+    <!-- ========== 证书考取面板 ========== -->
+    <div class="content-panel" id="panel-certs">
+      <div id="certListView">
+        <!-- 赛道一：专业认证 -->
+        <div class="cert-section-title">💻 专业认证（计算机相关）</div>
+        <div class="cert-grid">
+          <div class="cert-card" data-cert="ruankao">
+            <div class="cert-header"><span class="cert-icon">🌐</span><h4>软考（软件设计师 / 系统架构师）</h4></div>
+            <p>国内权威 IT 职业资格认证，中级软件设计师适合大三前考取，高级系统架构师适合有经验后冲刺。</p>
+            <div class="cert-meta"><span class="level">中级/高级</span><span>国内认可</span><span>性价比高</span></div>
+          </div>
+          <div class="cert-card" data-cert="python">
+            <div class="cert-header"><span class="cert-icon">🐍</span><h4>Python / Java 官方认证</h4></div>
+            <p>Python Institute 的 PCEP/PCAP，Oracle 的 Java OCA/OCP。语言能力证明，面试加分。</p>
+            <div class="cert-meta"><span class="level">初级/中级</span><span>语言方向</span><span>入门友好</span></div>
+          </div>
+          <div class="cert-card" data-cert="cda">
+            <div class="cert-header"><span class="cert-icon">📊</span><h4>CDA 数据分析师</h4></div>
+            <p>数据科学方向权威认证，分为 Level 1/2/3。适合数据分析、BI、算法岗。</p>
+            <div class="cert-meta"><span class="level">分级认证</span><span>数据方向</span><span>国内热门</span></div>
+          </div>
+          <div class="cert-card" data-cert="ccna">
+            <div class="cert-header"><span class="cert-icon">🌍</span><h4>思科 CCNA / CCNP</h4></div>
+            <p>网络工程经典认证。CCNA 适合入门网络方向，CCNP 进阶。适合网络工程师、运维岗位。</p>
+            <div class="cert-meta"><span class="level">初级/高级</span><span>网络方向</span><span>国际通用</span></div>
+          </div>
+        </div>
+
+        <!-- 赛道二：通用/升学证书 -->
+        <div class="cert-section-title" style="margin-top: 2rem;">🎓 通用证书与升学/体制内准备</div>
+        <div class="cert-grid">
+          <div class="cert-card" data-cert="cet">
+            <div class="cert-header"><span class="cert-icon">🇬🇧</span><h4>英语四六级（CET-4 / CET-6）</h4></div>
+            <p>大学生必备基础证书，很多大厂网申、保研、考公的硬性门槛。建议大一/大二尽早高分通过。</p>
+            <div class="cert-meta"><span class="level">基础必备</span><span>全校通用</span><span>求职门槛</span></div>
+          </div>
+          <div class="cert-card" data-cert="ncre">
+            <div class="cert-header"><span class="cert-icon">💻</span><h4>全国计算机等级考试（NCRE）</h4></div>
+            <p>计算机二级（MS Office / Python / C语言）是很多非技术岗、国企、体制内招聘的加分项。</p>
+            <div class="cert-meta"><span class="level">二级/三级</span><span>通用技能</span><span>国企敲门砖</span></div>
+          </div>
+          <div class="cert-card" data-cert="teacher">
+            <div class="cert-header"><span class="cert-icon">👨‍🏫</span><h4>教师资格证（教资）</h4></div>
+            <p>想进公立学校当信息技术老师，或作为未来职业兜底，教资是必须跨过的门槛。</p>
+            <div class="cert-meta"><span class="level">笔试+面试</span><span>体制内</span><span>寒暑假</span></div>
+          </div>
+          <div class="cert-card" data-cert="putonghua">
+            <div class="cert-header"><span class="cert-icon">🗣️</span><h4>普通话水平测试</h4></div>
+            <p>教资认定必备，部分公务员岗位要求二级甲等以上。考试简单，建议顺手考一个。</p>
+            <div class="cert-meta"><span class="level">二级乙等起</span><span>教资前置</span><span>考试简单</span></div>
+          </div>
+          <div class="cert-card" data-cert="competition">
+            <div class="cert-header"><span class="cert-icon">🏆</span><h4>高含金量竞赛（ACM/蓝桥杯等）</h4></div>
+            <p>算法、数学建模、互联网+、挑战杯。大厂敲门砖，保研加分利器，直接体现编程能力。</p>
+            <div class="cert-meta"><span class="level">国家级/省级</span><span>保研加分</span><span>简历亮点</span></div>
+          </div>
+          <div class="cert-card" data-cert="kaogong">
+            <div class="cert-header"><span class="cert-icon">🏛️</span><h4>公务员考试（考公 / 体制内）</h4></div>
+            <p>计算机岗位在体制内需求大。行测、申论、面试如何准备？岗位怎么选？这里有你需要的规划。</p>
+            <div class="cert-meta"><span class="level">国考/省考</span><span>应届生优势</span><span>铁饭碗</span></div>
+          </div>
+          <div class="cert-card" data-cert="kaoyan">
+            <div class="cert-header"><span class="cert-icon">🎓</span><h4>研究生考试（考研 / 408）</h4></div>
+            <p>计算机考研竞争激烈，408 统考如何拿高分？专硕和学硕怎么选？择校和复习时间线全解析。</p>
+            <div class="cert-meta"><span class="level">学硕/专硕</span><span>408统考</span><span>学历提升</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="certDetailView" class="detail-page">
+        <div class="detail-header">
+          <div class="detail-icon" id="certDetailIcon">🌐</div>
+          <div class="detail-title-area">
+            <h3 id="certDetailTitle">软考（软件设计师）</h3>
+            <p id="certDetailSubtitle">国内权威 IT 职业资格认证</p>
+          </div>
+          <button class="back-btn" id="backToCertBtn">← 返回证书列表</button>
+        </div>
+        <div class="detail-body" id="certDetailBody"></div>
+      </div>
+    </div>
+
+    <!-- ========== 技能清单面板 ========== -->
+    <div class="content-panel" id="panel-skills">
+      <div class="skill-grid">
+        <div class="skill-card">
+          <h4>💻 编程基础 <span style="font-size:0.7rem; color:#5f8fa8; font-weight:400;">(点击标记掌握)</span></h4>
+          <div class="skill-item" data-skill="cpp"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">C / C++</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:95%"></div></div></div>
+          <div class="skill-item" data-skill="python"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">Python</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:90%"></div></div></div>
+          <div class="skill-item" data-skill="java"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">Java</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:80%"></div></div></div>
+          <div class="skill-item" data-skill="js"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">JavaScript</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:85%"></div></div></div>
+        </div>
+        <div class="skill-card">
+          <h4>🧠 核心课程</h4>
+          <div class="skill-item" data-skill="ds"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">数据结构与算法</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:98%"></div></div></div>
+          <div class="skill-item" data-skill="os"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">操作系统</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:92%"></div></div></div>
+          <div class="skill-item" data-skill="network"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">计算机网络</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:90%"></div></div></div>
+          <div class="skill-item" data-skill="db"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">数据库</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:88%"></div></div></div>
+        </div>
+        <div class="skill-card">
+          <h4>🛠️ 工程工具</h4>
+          <div class="skill-item" data-skill="git"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">Git / GitHub</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:95%"></div></div></div>
+          <div class="skill-item" data-skill="linux"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">Linux</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:85%"></div></div></div>
+          <div class="skill-item" data-skill="docker"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">Docker</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:75%"></div></div></div>
+          <div class="skill-item" data-skill="vim"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">Vim / VSCode</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:80%"></div></div></div>
+        </div>
+        <div class="skill-card">
+          <h4>🚀 进阶方向</h4>
+          <div class="skill-item" data-skill="ml"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">机器学习</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:70%"></div></div></div>
+          <div class="skill-item" data-skill="dist"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">分布式系统</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:65%"></div></div></div>
+          <div class="skill-item" data-skill="cloud"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">云原生</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:60%"></div></div></div>
+          <div class="skill-item" data-skill="sec"><div class="skill-left"><div class="skill-check">✔</div><span class="skill-name">安全攻防</span></div><div class="skill-bar"><div class="skill-bar-fill" style="width:55%"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 学习资源面板 ========== -->
+    <div class="content-panel" id="panel-resources">
+      <div id="resourceListView">
+        <!-- 专业资源 -->
+        <div class="cert-section-title">💻 计算机专业核心资源</div>
+        <div class="resource-list">
+          <div class="resource-item" data-res="mit"><div class="resource-icon">🎥</div><div class="resource-text"><h4>MIT 6.824 / 斯坦福 CS144</h4><p>分布式系统与计算机网络顶级公开课，深入理解底层原理。</p></div></div>
+          <div class="resource-item" data-res="free"><div class="resource-icon">🌐</div><div class="resource-text"><h4>freeCodeCamp / 菜鸟教程</h4><p>免费编程学习平台，适合入门 Web 开发、Python、数据库等实用技能。</p></div></div>
+          <div class="resource-item" data-res="bili"><div class="resource-icon">📺</div><div class="resource-text"><h4>B站 / 慕课网 / Coursera</h4><p>中文视频教程平台，适合系统性学习框架、项目实战。</p></div></div>
+        </div>
+
+        <!-- 通用与升学资源 -->
+        <div class="cert-section-title" style="margin-top: 2rem;">🎓 通用证书与升学备考资源</div>
+        <div class="resource-list">
+          <div class="resource-item" data-res="cet_res"><div class="resource-icon">🇬🇧</div><div class="resource-text"><h4>四六级备考（星火 / 考虫 / 墨墨背单词）</h4><p>四六级真题精讲、高频词汇速记、听力专项训练。</p></div></div>
+          <div class="resource-item" data-res="ncre_res"><div class="resource-icon">💻</div><div class="resource-text"><h4>计算机二级题库（未来教育 / 虎奔）</h4><p>MS Office 高级应用、Python 二级真题模拟软件。</p></div></div>
+          <div class="resource-item" data-res="teacher_res"><div class="resource-icon">👨‍🏫</div><div class="resource-text"><h4>教资备考（中公 / 粉笔 / 华图）</h4><p>综合素质、教育知识与能力核心考点、历年真题。</p></div></div>
+          <div class="resource-item" data-res="putonghua_res"><div class="resource-icon">🗣️</div><div class="resource-text"><h4>普通话测试（畅言 / 普通话测试APP）</h4><p>全真模拟测试，针对声母、韵母、儿化音纠音练习。</p></div></div>
+          <div class="resource-item" data-res="competition_res"><div class="resource-icon">🏆</div><div class="resource-text"><h4>竞赛刷题（洛谷 / Codeforces / 牛客）</h4><p>ACM、蓝桥杯、数学建模历届真题与模拟赛平台。</p></div></div>
+          <div class="resource-item" data-res="kaogong_res"><div class="resource-icon">🏛️</div><div class="resource-text"><h4>考公资料（粉笔 / 华图 / 半月谈）</h4><p>行测5000题、申论范文、历年国考/省考职位表。</p></div></div>
+          <div class="resource-item" data-res="kaoyan_res"><div class="resource-icon">🎓</div><div class="resource-text"><h4>考研资料（王道408 / 张宇 / 肖秀荣）</h4><p>408 四门课讲义、数学真题、政治背诵手册。</p></div></div>
+        </div>
+      </div>
+      
+      <!-- 学习资源详情页 -->
+      <div id="resourceDetailView" class="detail-page">
+        <div class="detail-header">
+          <div class="detail-icon" id="resDetailIcon">📘</div>
+          <div class="detail-title-area">
+            <h3 id="resDetailTitle">资源详情</h3>
+            <p id="resDetailSubtitle">详细介绍与建议</p>
+          </div>
+          <button class="back-btn" id="backToResBtn">← 返回资源列表</button>
+        </div>
+        <div class="detail-body" id="resDetailBody"></div>
+      </div>
+    </div>
+
+    <!-- ========== 自习室面板 ========== -->
+    <div class="content-panel" id="panel-study">
+      <div class="study-room">
+        <div class="study-icon">⏱️</div>
+        <h3>沉浸式自习室</h3>
+        <p>进入全屏专注模式，屏蔽外界干扰。按 Esc 退出全屏可变为悬浮窗继续计时。结束自习时需在当前页面登记学习心得才能保存记录。</p>
+        <button class="start-study-btn" id="startStudyBtn">开启专注自习</button>
+
+        <!-- 我的自习记录 -->
+        <div class="my-study-list" id="myStudyList">
+          <h4>📖 我的学习记录</h4>
+          <div id="myStudyRecordsContainer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== AI 问答面板 ========== -->
+    <div class="content-panel" id="panel-ai">
+      <div class="ai-panel">
+        <div class="ai-hero">
+          <div class="ai-hero-icon">🤖</div>
+          <h3>有疑问？去问 DeepSeek！</h3>
+          <p>关于 <strong>计算机专业学习路线</strong>、<strong>技术选型</strong>、<strong>面试准备</strong>、<strong>项目难题</strong>…… 任何问题，点击下方按钮直达 DeepSeek 官网。</p>
+          <a href="https://chat.deepseek.com/" target="_blank" rel="noopener noreferrer" class="ai-jump-btn" id="deepseekJumpBtn"><i>🚀</i> 跳转到 DeepSeek 提问</a>
+        </div>
+        <div class="ai-questions">
+          <div class="ai-q-card" data-question="计算机专业大一应该学什么？"><div class="ai-q-icon">📚</div><div class="ai-q-text"><h5>大一应该学什么？</h5><p>课程重点、编程语言选择、社团建议</p></div></div>
+          <div class="ai-q-card" data-question="人工智能方向怎么入门？"><div class="ai-q-icon">🤖</div><div class="ai-q-text"><h5>AI 方向怎么入门？</h5><p>数学基础、框架选择、项目推荐</p></div></div>
+          <div class="ai-q-card" data-question="计算机专业考什么证书最有用？"><div class="ai-q-icon">📜</div><div class="ai-q-text"><h5>考什么证书最有用？</h5><p>软考、云认证、安全认证对比</p></div></div>
+          <div class="ai-q-card" data-question="如何准备大厂技术面试？"><div class="ai-q-icon">💼</div><div class="ai-q-text"><h5>如何准备大厂面试？</h5><p>算法、八股文、项目经验、简历</p></div></div>
+        </div>
+        <div class="ai-note">💡 <strong>提示：</strong> 点击上方问题卡片，将复制问题到剪贴板并打开 DeepSeek 官网，粘贴即可提问。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 管理员后台 ========== -->
+  <div class="admin-section" id="adminSection">
+    <div class="admin-header">
+      <div>
+        <h2><i>🛡️</i> 管理员后台</h2>
+        <div class="admin-subtitle">CS PATH 系统管理 · 当前管理员：<span class="admin-chip" id="adminChip" title="点击查看管理员主页"><span class="user-avatar" id="adminChipAvatar">A</span><strong id="adminGreet">admin</strong><span class="chip-arrow">›</span></span></div>
+      </div>
+      <button class="admin-logout" id="adminLogoutBtn">↻ 退出后台</button>
+    </div>
+
+    <div class="admin-nav">
+      <div class="admin-nav-item active" data-apanel="dashboard">📊 数据概览</div>
+      <div class="admin-nav-item" data-apanel="users">👥 用户管理</div>
+      <div class="admin-nav-item" data-apanel="questions">❓ AI提问记录</div>
+      <div class="admin-nav-item" data-apanel="studyRecords">📖 自习记录</div>
+      <div class="admin-nav-item" data-apanel="logs">📋 操作日志</div>
+    </div>
+
+    <div class="admin-panel active" id="apanel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="statUsers">0</div><div class="stat-label">注册用户总数</div></div>
+        <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-value" id="statActive">0</div><div class="stat-label">正常状态用户</div></div>
+        <div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-value" id="statBanned">0</div><div class="stat-label">已禁用用户</div></div>
+        <div class="stat-card"><div class="stat-icon">❓</div><div class="stat-value" id="statQuestions">0</div><div class="stat-label">AI提问总数</div></div>
+      </div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-header"><h4>📌 最近注册的用户</h4></div>
+        <table class="admin-table">
+          <thead><tr><th>用户</th><th>注册时间</th><th>状态</th></tr></thead>
+          <tbody id="recentUsersBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="apanel-users">
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h4>👥 用户列表</h4>
+          <input type="text" class="admin-search" id="userSearch" placeholder="🔍 搜索用户名…" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>用户</th><th>注册时间</th><th>手机绑定</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="apanel-questions">
+      <div class="admin-table-wrap" style="padding: 0;">
+        <div class="admin-table-header">
+          <h4>❓ AI提问记录</h4>
+          <button class="action-btn" id="clearQuestionsBtn" style="border-color:#ff4d6d80;color:#ff8fa3;">🗑️ 清空记录</button>
+        </div>
+        <div style="padding: 1.2rem 1.5rem;"><div class="question-list" id="questionList"></div></div>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="apanel-studyRecords">
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h4>📖 用户自习记录</h4>
+          <button class="action-btn" id="clearStudyRecordsBtn" style="border-color:#ff4d6d80;color:#ff8fa3;">🗑️ 清空记录</button>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>用户</th><th>专注时长</th><th>登记时间</th><th>学习内容/总结</th></tr></thead>
+          <tbody id="studyRecordsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-panel" id="apanel-logs">
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h4>📋 系统操作日志</h4>
+          <button class="action-btn" id="clearLogsBtn" style="border-color:#ff4d6d80;color:#ff8fa3;">🗑️ 清空日志</button>
+        </div>
+        <table class="admin-table">
+          <thead><tr><th>时间</th><th>操作</th><th>详情</th></tr></thead>
+          <tbody id="logsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 个人主页（独立页面） ========== -->
+  <div class="profile-section" id="profileSection">
+    <div class="profile-topbar">
+      <button class="profile-back" id="profileBackBtn">← 返回学习规划</button>
+      <div class="profile-topbar-title">个人主页</div>
+      <button class="profile-edit-btn" id="profileEditBtn">✏️ 编辑资料</button>
+    </div>
+
+    <!-- 浏览视图 -->
+    <div id="profileMainView">
+      <div class="profile-hero">
+        <div class="profile-avatar" id="profileAvatar">U</div>
+        <div class="profile-hero-main">
+          <h2 id="profileName">同学</h2>
+          <div class="profile-handle" id="profileHandle">@user</div>
+          <div class="profile-badges" id="profileBadges"></div>
+          <p class="profile-bio" id="profileBio">这个人很懒，还没有填写个人简介～</p>
+        </div>
+      </div>
+
+      <div class="profile-stats" style="margin-top:1.2rem;">
+        <div class="profile-stat"><b id="pStatSessions">0</b><span>自习次数</span></div>
+        <div class="profile-stat"><b id="pStatHours">0h</b><span>累计专注</span></div>
+        <div class="profile-stat"><b id="pStatQuestions">0</b><span>AI 提问</span></div>
+        <div class="profile-stat"><b id="pStatSkills">0</b><span>已掌握技能</span></div>
+      </div>
+
+      <div class="profile-card-box" style="margin-top:1.2rem;">
+        <div class="profile-tabs">
+          <div class="profile-tab active" data-ppane="info">基本资料</div>
+          <div class="profile-tab" data-ppane="study">自习记录</div>
+          <div class="profile-tab" data-ppane="ai">AI 提问</div>
+        </div>
+        <div class="profile-pane active" id="ppane-info">
+          <div id="profileInfoBody"></div>
+        </div>
+        <div class="profile-pane" id="ppane-study">
+          <div id="profileStudyBody"></div>
+        </div>
+        <div class="profile-pane" id="ppane-ai">
+          <div id="profileAiBody"></div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="profile-btn" id="profileBindBtn">📱 绑定手机号</button>
+          <button class="profile-btn danger" id="profileLogoutBtn">↻ 退出登录</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑资料视图 -->
+    <div id="profileEditView" style="display:none;">
+      <div class="profile-card-box">
+        <div class="profile-form-grid">
+          <div class="form-item">
+            <label for="editNickname">昵称<span class="req">*</span></label>
+            <input type="text" id="editNickname" maxlength="16" placeholder="给自己起个昵称" autocomplete="off">
+          </div>
+          <div class="form-item">
+            <label for="editGrade">年级</label>
+            <select id="editGrade">
+              <option value="">未选择</option>
+              <option>大一</option><option>大二</option><option>大三</option><option>大四</option>
+              <option>研一</option><option>研二</option><option>研三</option><option>已毕业</option>
+            </select>
+          </div>
+          <div class="form-item">
+            <label for="editSchool">学校</label>
+            <input type="text" id="editSchool" maxlength="30" placeholder="如：某某大学" autocomplete="off">
+          </div>
+          <div class="form-item">
+            <label for="editMajor">专业 / 方向</label>
+            <input type="text" id="editMajor" maxlength="30" placeholder="如：计算机科学与技术" autocomplete="off">
+          </div>
+          <div class="form-item full">
+            <label for="editBio">个人简介</label>
+            <textarea id="editBio" maxlength="80" placeholder="介绍一下自己吧，比如正在学的方向、目标…"></textarea>
+            <div class="counter"><span id="bioCount">0</span>/80</div>
+          </div>
+          <div class="form-item full">
+            <label>头像</label>
+            <div class="avatar-picker" id="avatarPicker"></div>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="profile-btn primary" id="profileSaveBtn">💾 保存修改</button>
+          <button class="profile-btn" id="profileCancelBtn">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ========== 管理员主页（独立页面） ========== -->
+  <div class="profile-section admin-profile-section" id="adminProfileSection">
+    <div class="profile-topbar">
+      <button class="profile-back" id="aProfileBackBtn">← 返回后台</button>
+      <div class="profile-topbar-title">管理员主页</div>
+      <button class="profile-edit-btn" id="aProfileEditBtn">✏️ 编辑资料</button>
+    </div>
+
+    <div id="adminProfileMainView">
+      <div class="profile-hero">
+        <div class="profile-avatar" id="aProfileAvatar">A</div>
+        <div class="profile-hero-main">
+          <h2 id="aProfileName">管理员</h2>
+          <div class="profile-handle" id="aProfileHandle">@admin</div>
+          <div class="profile-badges" id="aProfileBadges"></div>
+          <p class="profile-bio" id="aProfileBio">还没有填写简介～</p>
+        </div>
+      </div>
+
+      <div class="profile-stats" style="margin-top:1.2rem;">
+        <div class="profile-stat"><b id="aStatUsers">0</b><span>注册用户</span></div>
+        <div class="profile-stat"><b id="aStatQuestions">0</b><span>AI 提问</span></div>
+        <div class="profile-stat"><b id="aStatRecords">0</b><span>自习记录</span></div>
+        <div class="profile-stat"><b id="aStatLogs">0</b><span>操作日志</span></div>
+      </div>
+
+      <div class="profile-card-box" style="margin-top:1.2rem;">
+        <div class="profile-tabs">
+          <div class="profile-tab active" data-apane="info">基本资料</div>
+          <div class="profile-tab" data-apane="users">用户概览</div>
+          <div class="profile-tab" data-apane="logs">管理记录</div>
+        </div>
+        <div class="profile-pane active" id="apane-info">
+          <div id="aProfileInfoBody"></div>
+        </div>
+        <div class="profile-pane" id="apane-users">
+          <div id="aProfileUsersBody"></div>
+        </div>
+        <div class="profile-pane" id="apane-logs">
+          <div id="aProfileLogsBody"></div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="profile-btn danger" id="aProfileLogoutBtn">↻ 退出后台</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑资料视图 -->
+    <div id="adminProfileEditView" style="display:none;">
+      <div class="profile-card-box">
+        <div class="profile-form-grid">
+          <div class="form-item">
+            <label for="aEditNickname">昵称<span class="req">*</span></label>
+            <input type="text" id="aEditNickname" maxlength="16" placeholder="管理员显示昵称" autocomplete="off">
+          </div>
+          <div class="form-item">
+            <label for="aEditTitle">头衔 / 职务</label>
+            <input type="text" id="aEditTitle" maxlength="20" placeholder="如：系统管理员" autocomplete="off">
+          </div>
+          <div class="form-item full">
+            <label for="aEditBio">个人简介</label>
+            <textarea id="aEditBio" maxlength="80" placeholder="简单介绍一下自己的管理职责…"></textarea>
+            <div class="counter"><span id="aBioCount">0</span>/80</div>
+          </div>
+          <div class="form-item full">
+            <label>头像</label>
+            <div class="avatar-picker" id="aAvatarPicker"></div>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="profile-btn primary" id="aProfileSaveBtn">💾 保存修改</button>
+          <button class="profile-btn" id="aProfileCancelBtn">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 全屏专注模式 -->
+<div class="fullscreen-study" id="fullscreenStudy">
+  <!-- 计时视图 -->
+  <div class="timer-view" id="timerView">
+    <div class="study-timer-display" id="studyTimerDisplay">00:00:00</div>
+    <div class="study-action-btns">
+      <button class="exit-fullscreen-btn" id="exitFullscreenBtn">退出全屏（小窗模式）</button>
+      <button class="end-study-btn" id="endStudyBtn">结束自习</button>
+    </div>
+  </div>
+
+  <!-- 登记视图 (内嵌全屏中) -->
+  <div class="record-view" id="recordView">
+    <h3>📝 登记学习记录</h3>
+    <div class="duration-tip">本次专注时长：<span id="modalDuration">00:00:00</span></div>
+    <textarea id="studyNote" placeholder="请填写本次自习的学习内容或心得（不少于1个字）..."></textarea>
+    <button class="save-record-btn" id="saveStudyRecordBtn">保存记录并退出</button>
+  </div>
+</div>
+
+<!-- 小窗模式 -->
+<div class="mini-player" id="miniPlayer">
+  <div class="mini-icon">⏱️</div>
+  <div class="mini-timer" id="miniTimer">00:00:00</div>
+</div>
+
+<script>
+  // ========== 页面加载及定时器清空输入框，根除[object PointerEvent] ==========
+  function clearAllInputs() {
+    document.querySelectorAll('input').forEach(input => {
+      if (input.value && String(input.value).includes('[object')) {
+        input.value = '';
+      }
+    });
+  }
+  clearAllInputs();
+  document.addEventListener('DOMContentLoaded', () => {
+    clearAllInputs();
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('focus', function() {
+        if (this.value && String(this.value).includes('[object')) this.value = '';
+      });
+      input.addEventListener('click', function() {
+        if (this.value && String(this.value).includes('[object')) this.value = '';
+      });
+    });
+  });
+  setInterval(clearAllInputs, 500);
+
+  (function() {
+    // ========== 管理员账号（写死，不可注册） ==========
+    const ADMIN_ACCOUNT = { username: 'fznlsy', password: 'fzn@lsy111' };
+    const DEEPSEEK_URL = 'https://chat.deepseek.com/';
+
+    // ========== 数据字典 ==========
+    const PATH_DATA = {
+      ai: { icon: '🤖', title: '人工智能', subtitle: '机器学习、深度学习、计算机视觉、NLP', intro: '人工智能是当前最热门的计算机方向之一，涵盖机器学习、深度学习、自然语言处理、计算机视觉等多个子领域。入门门槛较高，需要扎实的数学基础和编程能力，但薪资回报和职业前景非常可观。', skills: [{ name: 'Python 编程', level: 95 },{ name: '线性代数 / 概率论', level: 90 },{ name: '机器学习基础', level: 85 },{ name: '深度学习框架 (PyTorch/TF)', level: 80 },{ name: '论文阅读能力', level: 70 }], roadmap: [{ title: '阶段一：数学与编程基础', desc: '掌握 Python 基础语法、NumPy/Pandas 数据处理，学习线性代数、概率统计、微积分等数学基础。' },{ title: '阶段二：机器学习入门', desc: '学习经典机器学习算法（回归、决策树、SVM、聚类），推荐《机器学习》西瓜书 + 吴恩达课程。' },{ title: '阶段三：深度学习框架', desc: '学习 PyTorch 或 TensorFlow，动手实现 CNN、RNN、Transformer 等经典网络结构。' },{ title: '阶段四：方向细分', desc: '选择 CV（计算机视觉）、NLP（自然语言处理）或强化学习方向深耕，参与 Kaggle 或开源项目。' }], certs: ['TensorFlow Developer Certificate', 'AWS Machine Learning Specialty', 'NVIDIA Deep Learning Institute 认证'], resources: ['《深度学习》花书 —— Ian Goodfellow', '吴恩达《Machine Learning》Coursera 课程', '李宏毅《机器学习》B站课程', 'Hugging Face 开源社区 + Kaggle 竞赛平台'] },
+      fullstack: { icon: '⚡', title: '全栈开发', subtitle: '前端+后端+数据库+DevOps', intro: '全栈开发工程师能够独立完成一个完整 Web 应用的前后端开发、数据库设计、部署运维。是最容易找工作的方向之一，入门门槛适中，适合喜欢快速看到成果的同学。', skills: [{ name: 'HTML / CSS / JavaScript', level: 95 },{ name: 'React / Vue 框架', level: 90 },{ name: 'Node.js / Java 后端', level: 85 },{ name: 'MySQL / MongoDB 数据库', level: 80 },{ name: 'Docker / CI/CD 部署', level: 75 }], roadmap: [{ title: '阶段一：前端基础', desc: 'HTML5、CSS3、JavaScript ES6+，掌握 DOM 操作、异步编程、模块化。' },{ title: '阶段二：前端框架', desc: '学习 React 或 Vue 框架，掌握组件化开发、状态管理（Redux/Pinia）、路由。' },{ title: '阶段三：后端开发', desc: '学习 Node.js + Express 或 Java + Spring Boot，掌握 RESTful API 设计、鉴权、数据库操作。' },{ title: '阶段四：部署与运维', desc: '学习 Linux 命令、Docker 容器化、Nginx 反向代理、CI/CD 自动化部署。' }], certs: ['阿里云 ACP 云计算工程师', 'AWS Certified Developer', '腾讯云从业者认证'], resources: ['MDN Web 文档（前端权威指南）', 'React / Vue 官方文档', 'freeCodeCamp 全栈开发路径', '全栈公开课：The Odin Project'] },
+      security: { icon: '🛡️', title: '网络安全', subtitle: '渗透测试、安全架构、密码学', intro: '网络安全人才缺口巨大，是国家级战略方向。主要分为攻防渗透（红队）、安全防护（蓝队）、安全架构、合规审计等方向。需要有极强的学习能力和法律意识。', skills: [{ name: '计算机网络 / 操作系统', level: 95 },{ name: 'Linux / Shell 脚本', level: 90 },{ name: 'Python 安全工具开发', level: 85 },{ name: 'Web 渗透 / 漏洞分析', level: 80 },{ name: '密码学基础', level: 70 }], roadmap: [{ title: '阶段一：底层基础', desc: '深入理解 TCP/IP 协议栈、操作系统原理、Linux 命令，这是安全的根基。' },{ title: '阶段二：Web 安全入门', desc: '学习 OWASP Top 10 漏洞原理，掌握 SQL 注入、XSS、CSRF、文件上传等常见漏洞。' },{ title: '阶段三：渗透测试实战', desc: '使用 Kali Linux、Burp Suite、Nmap 等工具，在靶场（HackTheBox、DVWA）中实战练习。' },{ title: '阶段四：进阶方向', desc: '选择二进制安全 / 内网渗透 / 云安全方向深入，考取相关认证。' }], certs: ['CISP 注册信息安全专业人员', 'CISSP 国际信息安全认证', 'OSCP 渗透测试认证', 'CEH 道德黑客认证'], resources: ['《白帽子讲 Web 安全》—— 吴翰清', 'OWASP 官方文档 + Top 10 漏洞详解', 'HackTheBox / TryHackMe 在线靶场', 'B站 i春秋 / 看雪学院 安全课程'] },
+      data: { icon: '📊', title: '数据科学', subtitle: '数据分析、大数据工程、商业智能', intro: '数据科学是连接技术与业务的桥梁，分为数据分析（偏业务）、数据工程（偏架构）、机器学习（偏算法）三个方向。适合有商科思维又懂技术的同学，就业面广。', skills: [{ name: 'Python / R / SQL', level: 95 },{ name: 'Pandas / NumPy 数据处理', level: 90 },{ name: '数据可视化 (Tableau/ECharts)', level: 85 },{ name: '统计分析 / A/B 测试', level: 80 },{ name: 'Spark / Hadoop 大数据', level: 70 }], roadmap: [{ title: '阶段一：编程与数据处理', desc: '掌握 Python 基础、Pandas 数据清洗、SQL 查询，能处理结构化数据。' },{ title: '阶段二：统计学与可视化', desc: '学习描述性统计、假设检验、回归分析，用 Tableau 或 ECharts 做可视化报表。' },{ title: '阶段三：业务分析实战', desc: '参与真实业务项目（用户增长、留存、转化分析），学习 A/B 测试方法论。' },{ title: '阶段四：大数据与机器学习', desc: '学习 Spark 处理海量数据，入门机器学习算法，能搭建完整的数据分析管道。' }], certs: ['CDA 数据分析师（Level 1/2/3）', '阿里云 ACP 大数据分析师', 'Tableau Desktop Specialist'], resources: ['《利用 Python 进行数据分析》', 'Kaggle 数据分析入门竞赛', 'SQL 必知必会 / LeetCode 数据库题', 'B站 黑马程序员 数据分析课程'] },
+      blockchain: { icon: '⛓️', title: '区块链 / Web3', subtitle: '智能合约、去中心化应用、共识机制', intro: '区块链是去中心化应用的基础，Web3 生态近两年发展迅猛。主要方向包括智能合约开发、DApp 开发、区块链底层协议、零知识证明等。属于前沿领域，风险与机会并存。', skills: [{ name: 'Solidity 智能合约开发', level: 90 },{ name: 'JavaScript / TypeScript', level: 90 },{ name: '以太坊生态 (Web3.js/ethers)', level: 85 },{ name: '密码学 / 共识算法', level: 75 },{ name: 'DeFi / NFT 协议原理', level: 70 }], roadmap: [{ title: '阶段一：编程与密码学基础', desc: '掌握 JavaScript、Node.js，学习哈希、非对称加密、数字签名等密码学基础。' },{ title: '阶段二：Solidity 智能合约', desc: '学习 Solidity 语法，掌握 ERC-20 / ERC-721 标准，在 Remix 或 Hardhat 上部署合约。' },{ title: '阶段三：DApp 全栈开发', desc: '使用 React + ethers.js 开发去中心化应用，集成 MetaMask 钱包，实现完整 DApp。' },{ title: '阶段四：进阶协议研究', desc: '研究 DeFi、NFT 协议，或学习零知识证明（zk-SNARKs），参与开源项目。' }], certs: ['以太坊开发者认证 (部分项目提供)', 'Certified Blockchain Developer (CBD)'], resources: ['以太坊官方文档 + Solidity 官方文档', 'CryptoZombies 互动式 Solidity 教程', 'Buildspace / Alchemy University 免费 Web3 课程', 'OpenZeppelin 智能合约标准库'] },
+      embedded: { icon: '📟', title: '嵌入式 / IoT', subtitle: '单片机、RTOS、传感器、边缘计算', intro: '嵌入式开发直接与硬件打交道，应用于智能家居、汽车电子、工业控制、可穿戴设备等。是硬件与软件的结合，需要了解 C 语言、电路基础。工作稳定，是硬件工程师的进阶方向。', skills: [{ name: 'C / C++ 编程', level: 95 },{ name: 'STM32 / ARM 单片机', level: 90 },{ name: 'FreeRTOS / 实时操作系统', level: 85 },{ name: '电路原理 / 硬件调试', level: 75 },{ name: '物联网协议 (MQTT/CoAP)', level: 70 }], roadmap: [{ title: '阶段一：C 语言与单片机入门', desc: '扎实 C 语言基础，学习 51 单片机或 STM32，掌握 GPIO、中断、定时器等基本操作。' },{ title: '阶段二：外设与通信协议', desc: '学习 UART、I2C、SPI、CAN 等通信协议，掌握传感器采集、显示屏驱动等常用外设。' },{ title: '阶段三：RTOS 与系统设计', desc: '学习 FreeRTOS 或 RT-Thread，实现多任务调度、任务间通信，构建复杂嵌入式系统。' },{ title: '阶段四：物联网全栈', desc: '学习 ESP32 或树莓派，接入 WiFi / 蓝牙，通过 MQTT 上传云端，实现完整 IoT 项目。' }], certs: ['ARM 认证嵌入式工程师', '华为 HCIA-IoT 物联网工程师', '思科 CCNA（网络方向）'], resources: ['《嵌入式 C 语言》/ 正点原子 STM32 教程', 'FreeRTOS 官方文档 + 野火教程', 'ESP32 官方文档 + Arduino 生态', 'B站 正点原子 / 野火 嵌入式视频课'] },
+      dev: { icon: '📱', title: '开发类', subtitle: '移动开发、游戏开发、音视频、测试开发', intro: '开发类是计算机专业最直接的就业出口，核心是「把产品做出来、做稳定」，而非训练模型。细分方向包括移动端应用、游戏、音视频、桌面客户端和测试开发。相比算法岗，它更看重工程能力、代码质量和项目经验，入门门槛适中、岗位数量最多，是校招最容易拿到 offer 的一类方向。', subs: [{ name: '📲 移动开发', desc: 'Android（Kotlin）、iOS（Swift）、鸿蒙（ArkTS），以及 Flutter / React Native 跨平台开发。' },{ name: '🎮 游戏开发', desc: 'Unity / Unreal 客户端、游戏服务器逻辑，图形学与渲染功底是加分项。' },{ name: '🎬 音视频开发', desc: 'H.264 / H.265 编解码、WebRTC、直播与视频会议系统，大厂需求稳定。' },{ name: '🖥️ 客户端 / 桌面', desc: 'C++/Qt、Electron，面向工业软件、办公与工具类产品。' },{ name: '🧪 测试开发', desc: '自动化测试、性能压测、测试平台开发，比纯业务开发更偏工程化。' }], skills: [{ name: '编程语言基础（Java/Kotlin/C++/C#）', level: 95 },{ name: '数据结构与算法', level: 90 },{ name: '主流框架 / 游戏引擎', level: 85 },{ name: '网络通信与音视频基础', level: 80 },{ name: '性能优化与调试', level: 75 }], roadmap: [{ title: '阶段一：语言与工程基础', desc: '扎实掌握一门主力语言，熟悉面向对象设计、Git 协作、调试与日志排查。' },{ title: '阶段二：选定细分方向', desc: '移动端学 Android/iOS/鸿蒙或 Flutter；游戏方向学 Unity 引擎与 C#；音视频方向学编解码与网络传输。' },{ title: '阶段三：完整项目实战', desc: '独立完成一个可上架 / 可运行的完整作品：网络请求、本地存储、列表与状态管理、性能优化都要覆盖。' },{ title: '阶段四：进阶与求职', desc: '读框架或引擎源码，参与开源项目，刷高频面试题，大三投递暑期实习。' }], certs: ['华为 HarmonyOS 开发者认证', 'Unity 认证开发者（Unity Certified）', 'Google Android 开发者认证', '阿里云 ACP（移动研发方向）'], resources: ['Android Developers / Apple Developer 官方文档', '《游戏编程模式》+ Unity 官方教程', '《音视频开发进阶指南》', 'B站 / 慕课网 项目实战课程'] },
+      infra: { icon: '☁️', title: '基础架构类', subtitle: '云计算、数据库、大数据、分布式系统', intro: '基础架构方向负责「支撑业务稳定运行」的底层能力：服务器与容器编排、数据库与存储、大数据平台、中间件等。它要求扎实的操作系统、网络与分布式系统功底，学习曲线比业务开发陡，但技术壁垒高、可替代性低，是典型的「越老越吃香」的高薪方向，也是大厂稳定性与成本优化的核心团队。', subs: [{ name: '☁️ 云计算 / DevOps / SRE', desc: 'Kubernetes 编排、CI/CD 流水线、监控告警与容量治理，保障服务高可用。' },{ name: '🗄️ 数据库 / 存储', desc: '数据库内核、分布式存储、缓存与消息中间件，属于硬核底层方向。' },{ name: '📈 大数据工程', desc: 'Hadoop / Spark / Flink 平台开发，数据仓库建模与实时计算链路。' },{ name: '🔗 分布式系统 / 中间件', desc: 'RPC 框架、注册中心、服务治理与高并发架构设计。' }], skills: [{ name: 'Linux 与操作系统原理', level: 95 },{ name: '计算机网络 / 分布式系统', level: 90 },{ name: '容器与云原生（Docker / K8s）', level: 85 },{ name: '数据库原理与 SQL 调优', level: 80 },{ name: '编程能力（Go / Java / Python）', level: 75 }], roadmap: [{ title: '阶段一：底层基础', desc: '啃透操作系统（进程、内存、文件系统）、计算机网络（TCP/IP、HTTP）与 Linux 常用命令、Shell 脚本。' },{ title: '阶段二：云原生入门', desc: '掌握 Docker 容器化、Kubernetes 基础编排、Nginx 反向代理与 CI/CD 自动化部署。' },{ title: '阶段三：数据与存储', desc: '学习 MySQL 索引与慢查询优化、Redis 缓存设计、消息队列与分布式存储原理。' },{ title: '阶段四：平台与稳定性进阶', desc: '进阶 Spark / Flink 数据处理、监控告警体系（Prometheus + Grafana），实践高可用与故障演练。' }], certs: ['阿里云 ACP 云计算工程师', 'CKA / CKAD（Kubernetes 认证）', 'AWS Certified Solutions Architect', '华为 HCIA / HCIP-Cloud'], resources: ['《深入理解计算机系统》（CSAPP）', 'Kubernetes 官方文档 + 《Kubernetes 权威指南》', '《高性能 MySQL》/《数据密集型应用系统设计》', '极客时间《左耳听风》《Kubernetes 实践课》'] }
+    };
+
+    const PLAN_DATA = {
+      "1": { icon: '🌱', title: '大一规划详情', subtitle: '打牢基础，广泛探索', goals: '大一最重要的不是学多少技术，而是建立对计算机专业的整体认知，培养编程兴趣，把数学和编程基础打牢。这一年要广泛尝试，找到自己感兴趣的方向。', tasks: ['掌握一门编程语言：C语言或Python，能独立写出300行以上的程序。','数学必修课拿高分：高等数学、离散数学是后续算法的基石。','熟悉Linux常用命令、Git版本控制，习惯在命令行下工作。','加入一个技术社团（ACM、机器人、开源社区），找到志同道合的伙伴。','开始刷LeetCode简单题（每周3-5道），建立算法思维。'], pitfalls: '不要一上来就学很深的框架，基础不牢地动山摇；不要只啃课本，一定要多动手写代码；不要盲目跟风买各种课程，免费资源足够你学。', resources: ['B站 翁恺 C语言', '廖雪峰 Python 教程', '菜鸟教程 Git / Linux', 'LeetCode 简单题库'] },
+      "2": { icon: '⚙️', title: '大二规划详情', subtitle: '确定方向，深入一门语言', goals: '大二开始进入专业核心课程，数据结构、操作系统、计算机网络、数据库这四门课必须学扎实，这是面试的“八股文”来源。同时要根据兴趣选择1-2个方向开始深入。', tasks: ['啃透《数据结构与算法》，能独立实现链表、树、图、排序等经典结构。','深入理解操作系统（进程、内存、文件系统）和计算机网络（TCP/IP、HTTP）。','选1-2个方向（AI/前端/安全等），跟着课程做1-2个小项目。','尝试参与GitHub开源项目，哪怕只是提个issue或修个文档。','组队参加校内/院内的编程竞赛，感受比赛氛围。'], pitfalls: '不要只看视频不动手，光看不写等于白学；不要沉迷各种花哨的技术名词，基础课才是核心；不要忽略英语，很多一手资料都是英文的。', resources: ['《大话数据结构》/ 严蔚敏教材', '《操作系统概念》/ 王道考研课', '《计算机网络：自顶向下方法》', 'Github 开源项目 Good First Issue'] },
+      "3": { icon: '🚀', title: '大三规划详情', subtitle: '项目实战 + 实习准备', goals: '大三是分水岭，必须完成从“学生”到“工程师”的思维转变。要有一个能拿得出手的完整项目，准备一份技术简历，并开始投递暑期实习。明确考研/就业/出国的路线。', tasks: ['独立完成1-2个完整项目（最好有实际用户或部署上线），写在简历里。','整理一份技术简历，参加学校的简历门诊或找学长学姐帮忙看。','刷LeetCode中等/困难题（累计200+），准备技术面试。','3-4月开始投递暑期实习，大厂日常实习/暑期实习都投。','决定考研/就业/出国，并开始准备对应材料。'], pitfalls: '不要等到大四才开始做项目，大三简历上必须有项目；不要盲目投小公司，第一份实习尽量去正规公司；不要忽略简历的排版和细节。', resources: ['牛客网 面试题库', 'LeetCode 热题 HOT 100', '超级简历 / 知页简历 模板', '各大公司招聘官网 / 牛客实习频道'] },
+      "4": { icon: '🎯', title: '大四规划详情', subtitle: '冲刺 offer 或 升学', goals: '大四上学期是秋招黄金期，必须全力冲刺。同时完成毕业设计，顺利拿到学位。如果考研则要平衡好备考和毕设，如果就业则全力准备面试和offer选择。', tasks: ['7-9月全力准备秋招：算法、八股文、项目深挖、行为面试。','参加校园招聘会、宣讲会，投递目标公司。','完成毕业设计（选题尽量与求职方向相关，能写进简历）。','拿到offer后对比薪资、城市、团队、发展空间，做出选择。','如果考研，12月考试，次年3-4月复试，注意时间节点。'], pitfalls: '不要因为实习就忽略毕设，延毕影响很大；不要只看薪资不看成长，第一份工作的平台很重要；不要签了三方就完全躺平，很多公司有入职前考核。', resources: ['牛客网 秋招讨论区', '脉脉 / 看准网 公司评价', '学校就业指导中心 三方协议指南'] }
+    };
+
+    const CERT_DATA = {
+      ruankao: { icon: '🌐', title: '软考（软件设计师 / 系统架构师）', subtitle: '国内权威 IT 职业资格认证', intro: '软考是由国家人力资源和社会保障部、工业和信息化部领导下的国家级考试。软考证书在国企、事业单位、政府机关认可度极高，部分地区还可以评职称、落户加分。中级“软件设计师”适合大三前考取，高级“系统架构师”适合有2-3年经验后冲刺。', details: [{ label: '考试时间', value: '上半年（5月）、下半年（11月）各一次' },{ label: '考试费用', value: '中级约 100-150 元，高级约 200 元' },{ label: '备考周期', value: '建议 2-3 个月，每天 1-2 小时' },{ label: '考试形式', value: '上午选择题 + 下午案例题（高级多一门论文）' }], tips: '中级软件设计师相对容易，重点复习数据结构、操作系统、数据库、软件工程。高级架构师论文比较难，需要提前准备项目案例，建议工作后再考。' },
+      python: { icon: '🐍', title: 'Python / Java 官方认证', subtitle: '语言能力证明，面试加分', intro: 'Python Institute 的 PCEP（入门）和 PCAP（中级）是 Python 编程能力的国际认证。Oracle 的 Java OCA（助理）和 OCP（专家）是 Java 生态的权威认证。对于应届生来说，这些认证能证明你的语言基础，简历上是一个加分项。', details: [{ label: '考试时间', value: '全年可约，线上机考' },{ label: '考试费用', value: 'PCEP 约 59 美元，PCAP 约 295 美元；Java OCA 约 245 美元' },{ label: '备考周期', value: 'PCEP 1-2 周，PCAP 1-2 个月' },{ label: '适合人群', value: '在校生、转行入门者' }], tips: '这类认证含金量不如云认证和安全认证，但对于零基础或应届生来说，能证明你系统学习过语言规范。建议先考 PCEP 或 OCA，找工作时作为简历的补充。' },
+      cda: { icon: '📊', title: 'CDA 数据分析师', subtitle: '数据科学方向权威认证', intro: 'CDA（Certified Data Analyst）是国内数据分析领域最主流的认证，分为 Level 1（业务数据分析师）、Level 2（建模分析师）、Level 3（大数据分析师）。很多企业招聘数据分析师时会优先考虑 CDA 持证者。', details: [{ label: '考试时间', value: '每年 3、6、9、12 月' },{ label: '考试费用', value: 'Level 1 约 1200 元，Level 2 约 1600 元' },{ label: '备考周期', value: 'Level 1 约 1-2 个月，Level 2 约 3 个月' },{ label: '报考条件', value: 'Level 1 无门槛，Level 2 需通过 Level 1' }], tips: 'Level 1 主要考 Excel、SQL、基础统计学，相对简单。Level 2 涉及 Python 建模、机器学习算法，难度较大。建议先考 Level 1，入职后再根据岗位需要考 Level 2。' },
+      ccna: { icon: '🌍', title: '思科 CCNA / CCNP', subtitle: '网络工程经典认证', intro: 'CCNA（思科认证网络助理）和 CCNP（思科认证网络专家）是网络工程领域最经典的认证，全球通用。CCNA 适合入门网络方向，CCNP 适合进阶。适合网络工程师、运维工程师、网络安全工程师岗位。', details: [{ label: '考试时间', value: '全年可约，Pearson VUE 考试中心' },{ label: '考试费用', value: 'CCNA 约 300 美元，CCNP 需考两门约 600 美元' },{ label: '备考周期', value: 'CCNA 2-3 个月，CCNP 4-6 个月' },{ label: '适合人群', value: '网络方向在校生、运维转网络' }], tips: 'CCNA 考的是思科设备配置，但网络原理是通用的。建议用 Packet Tracer 模拟器做实验，边配边学。如果只想去互联网公司做开发，CCNA 的优先级不高；如果是网络/运维方向，CCNA 是标配。' },
+      
+      cet: { icon: '🇬🇧', title: '英语四六级（CET-4 / CET-6）', subtitle: '大学生必备基础证书', intro: '四六级是全国大学生英语水平考试，虽然计算机专业不直接考英语，但四六级是很多大厂网申（如华为、腾讯、字节）、保研、考公的硬性门槛。四级通常要求425分以上，六级则是简历的亮点。', details: [{ label: '考试时间', value: '每年6月、12月各一次' },{ label: '考试费用', value: '各地 30-50 元不等' },{ label: '备考周期', value: '基础好的裸考可过，基础弱建议 1-2 个月' },{ label: '目标分数', value: '四级保底425，六级目标500+' }], tips: '四级越早考越好，大一凭高中底子往往最容易过。六级需要多刷真题，重点练听力和阅读。不要把时间全花在背单词上，直接刷真题效率最高。' },
+      ncre: { icon: '💻', title: '全国计算机等级考试（NCRE）', subtitle: '计算机二级，通用技能证明', intro: 'NCRE 是教育部颁发的计算机水平考试。对于计算机专业的同学，二级证书显得不那么重要（因为我们有更强的专业能力），但对于想进国企、考公务员、或者非技术岗就业的同学，二级（尤其是 MS Office 高级应用）是一个非常实用的加分项。', details: [{ label: '考试时间', value: '每年3月、5月、9月、12月' },{ label: '考试费用', value: '各地约 80-120 元' },{ label: '备考周期', value: '1 个月左右' },{ label: '推荐科目', value: 'MS Office（体制内吃香）或 Python（专业相关）' }], tips: '如果你以后想进体制内或国企，建议考一个 MS Office 二级，很多行政岗有硬性要求。如果纯粹为了技术，不需要考。计算机专业同学考二级非常轻松，建议顺手拿下。' },
+      teacher: { icon: '👨‍🏫', title: '教师资格证（教资）', subtitle: '体制内教师必备，职业兜底', intro: '如果你想进公立学校当信息技术老师，或者把教师作为未来的职业兜底选择，教师资格证是必须跨过的门槛。教资分为幼儿园、小学、中学，计算机专业一般考“高中信息技术”或“初中信息技术”。', details: [{ label: '考试时间', value: '笔试上半年3月、下半年10月；面试在5月/次年1月' },{ label: '考试费用', value: '笔试每科约 70 元，面试约 200-300 元' },{ label: '备考周期', value: '综合素质+教育知识与能力+学科知识，建议 1-2 个月' },{ label: '报考条件', value: '本科大三及以上可报' }], tips: '教资笔试不难，重点背《教育知识与能力》。学科知识对计算机专业同学来说很简单。面试需要试讲，建议多对着镜子练习。教资笔试成绩保留2年，可以分次考。' },
+      putonghua: { icon: '🗣️', title: '普通话水平测试', subtitle: '教资认定前置，考公部分岗位要求', intro: '普通话证书是教师资格证认定的必备材料（一般要求二级乙等及以上，语文老师要求二甲）。同时，部分公务员岗位（如窗口服务、宣传岗）也会要求普通话等级。考试非常快且简单。', details: [{ label: '考试时间', value: '各地测试站每月或每季度组织' },{ label: '考试费用', value: '约 50 元' },{ label: '备考周期', value: '考前 1-2 周熟悉题型即可' },{ label: '等级要求', value: '教资认定一般需二级乙等（80分）以上' }], tips: '考试分为读单音节字词、多音节词语、朗读短文、命题说话。南方同学重点练习平翘舌音和前后鼻音。考前下载一个“普通话测试”APP 模拟几遍就能过，不用花太多精力。' },
+      competition: { icon: '🏆', title: '高含金量竞赛（ACM / 蓝桥杯等）', subtitle: '大厂敲门砖，保研加分利器', intro: '计算机专业的竞赛是证明你编程能力最直接的方式。高含金量竞赛包括：ACM-ICPC（国际大学生程序设计竞赛）、蓝桥杯、全国大学生数学建模竞赛、互联网+创新创业大赛、挑战杯、CTF 网络安全竞赛等。', details: [{ label: 'ACM', value: '含金量最高，外企/大厂极认可，难度大' },{ label: '蓝桥杯', value: '国内认可度高，难度适中，适合大二' },{ label: '数学建模', value: '综合能力强，保研加分' },{ label: '互联网+/挑战杯', value: '适合有完整项目的团队' }], tips: '不要为了拿奖而水比赛，选1-2个含金量高的比赛投入精力。ACM 需要长期训练，蓝桥杯性价比最高，数学建模可以锻炼论文写作能力。竞赛拿奖不仅能写简历，在很多学校还能直接保研加分。' },
+      kaogong: { icon: '🏛️', title: '公务员考试（考公 / 体制内）', subtitle: '计算机岗位需求大，应届生优势明显', intro: '计算机专业在公务员考试中属于“万金油”专业，很多部门（如税务局、公安、网信办、统计局）都需要计算机人才。相比于三不限岗位，计算机岗位竞争相对较小。公务员笔试考《行测》和《申论》。', details: [{ label: '国考时间', value: '每年10月报名，11月底笔试' },{ label: '省考时间', value: '多数省份在次年2-3月，部分省份下半年也有' },{ label: '笔试科目', value: '行政职业能力测验 + 申论（部分岗位有专业科目）' },{ label: '应届生优势', value: '很多岗位仅限应届生报考，竞争小很多' }], tips: '如果决定考公，大三下学期就要开始准备。行测重点练资料分析、言语理解、判断推理；申论要多写多看。建议关注“计算机类”岗位，竞争远小于“三不限”。选调生也是很好的路子，建议争取。' },
+      kaoyan: { icon: '🎓', title: '研究生考试（考研 / 408）', subtitle: '计算机考研，408 统考', intro: '计算机考研是提升学历、进大厂算法岗或科研的必经之路。计算机考研学硕一般考 408（数据结构、操作系统、计算机网络、计算机组成原理），专硕部分学校考 408 或自命题。考研竞争非常激烈，需要提前一年开始准备。', details: [{ label: '考试时间', value: '每年12月底' },{ label: '笔试科目', value: '政治、英语一/二、数学一/二、408 或专业课' },{ label: '备考周期', value: '建议 10-12 个月，大三下学期开始' },{ label: '择校建议', value: '重点关注复试线、报录比、是否保护一志愿' }], tips: '408 是考研中最难的科目之一，需要啃透四门课。数学和专业课是拉分关键。建议大三上学期开始数学，下学期开始 408。择校非常关键，有时候“选择大于努力”，避开热门爆满的学校。' }
+    };
+
+    const RES_DATA = {
+      mit: { icon: '🎥', title: 'MIT 6.824 / 斯坦福 CS144', subtitle: '分布式系统与计算机网络顶级公开课', intro: 'MIT 6.824 是分布式系统领域的顶级课程，涉及 MapReduce、Raft、分布式事务等核心内容。斯坦福 CS144 是计算机网络经典课程，从底层链路到应用层协议全面讲解。这两门课能帮你深入理解系统底层原理。', detail: '这两门课难度较大，需要有一定的编程基础和系统知识。6.824 有配套的 Lab（用 Go 实现 Raft 和 KV 存储），CS144 有 TCP 协议的 Lab。建议大三或大四学，配合英文原版讲义和 B 站的中文字幕。', suitable: '有扎实基础、想深入系统方向或准备大厂后端/基础架构岗位的同学。', link: 'https://pdos.csail.mit.edu/6.824/' },
+      free: { icon: '🌐', title: 'freeCodeCamp / 菜鸟教程', subtitle: '免费编程学习平台', intro: 'freeCodeCamp 是全球最大的免费编程学习社区，提供完整的 Web 开发课程和认证。菜鸟教程是国内中文编程入门网站，内容涵盖各种编程语言和工具的基础教程，适合零基础快速上手。', detail: 'freeCodeCamp 有完整的响应式 Web 设计、JavaScript 算法、前端库、后端开发等认证路径，边学边做项目。菜鸟教程适合查语法、快速了解新工具，但不适合作为系统学习的唯一来源。', suitable: '零基础入门、需要快速了解某个技术栈的同学。', link: 'https://www.freecodecamp.org/chinese/' },
+      bili: { icon: '📺', title: 'B站 / 慕课网 / Coursera', subtitle: '中文视频教程平台', intro: 'B站是国内最大的免费视频学习平台，有大量优质的编程教程，比如尚硅谷、黑马程序员、翁恺等 UP 主。慕课网是国内专业的 IT 技能学习平台，课程更系统。Coursera 是国际慕课平台，有吴恩达、李飞飞等大师的课程。', detail: 'B站适合免费入门，搜“XX 教程 2024”就能找到最新的全套课程。慕课网适合买实战项目课程，跟着做完整项目。Coursera 适合学人工智能、数据科学等前沿方向，部分课程可申请助学金免费学。', suitable: '喜欢看视频学习的同学，以及需要系统实战项目的同学。', link: 'https://www.bilibili.com/' },
+      
+      cet_res: { icon: '🇬🇧', title: '四六级备考', subtitle: '星火 / 考虫 / 墨墨背单词', intro: '四六级备考的核心是真题。星火的《四/六级真题详解》排版清晰，解析详细；考虫的网课适合基础薄弱的同学跟着系统学；墨墨背单词适合利用碎片时间刷高频词汇。', detail: '不要买一堆模拟题，只做真题！把近5年的真题刷2-3遍，特别是听力和阅读。听力可以用“精听”法，听一句写一句。阅读重点练长篇阅读和仔细阅读，不要死磕选词填空。', suitable: '大一、大二准备四六级的同学。', link: 'https://www.bilibili.com/' },
+      ncre_res: { icon: '💻', title: '计算机二级题库', subtitle: '未来教育 / 虎奔', intro: '计算机二级（尤其是 MS Office）的考试非常套路化，题库命中率极高。未来教育和虎奔的题库软件包含了历年真题和模拟考试系统，界面和真实考试一模一样，非常适合突击。', detail: '不需要买书，直接买题库软件（一般几十块钱）。如果是考 MS Office，重点练 Word 的长文档排版、Excel 的函数与数据透视表、PPT 的动画；如果是考 Python，重点练基本语法、turtle 绘图、数据处理。', suitable: '准备考计算机二级的同学。', link: 'https://ncre.neea.edu.cn/' },
+      teacher_res: { icon: '👨‍🏫', title: '教资备考', subtitle: '中公 / 粉笔 / 华图', intro: '教资笔试的重点是《综合素质》和《教育知识与能力》。粉笔的网课和配套教材口碑最好，重点突出；中公的教材内容全面；华图的面试指导比较实用。', detail: '科一（综合素质）重点背“三观”（教师观、学生观、教育观）和职业道德；科二（教育知识与能力）内容多，建议跟着粉笔的课画思维导图，重点背简答题和辨析题。学科知识（信息技术）对计算机专业同学来说基本不用复习。', suitable: '大三及以上，想考信息技术教师的同学。', link: 'https://ntce.neea.edu.cn/' },
+      putonghua_res: { icon: '🗣️', title: '普通话测试', subtitle: '畅言 / 普通话测试APP', intro: '普通话考试不需要报班，用“畅言普通话”或官方的测试APP即可。这些软件会模拟真实考试流程，并且有AI评分，能帮你快速发现自己的发音问题（特别是平翘舌、前后鼻音）。', detail: '重点练最后一道“命题说话”。题库里有固定的30个话题，提前准备好每个话题的提纲（不要背稿，要自然地说）。考试时语速放慢，不要停顿太久，哪怕说废话也要说满3分钟。', suitable: '需要教资认定、考公或者想提升普通话水平的同学。', link: 'https://www.bilibili.com/' },
+      competition_res: { icon: '🏆', title: '竞赛刷题平台', subtitle: '洛谷 / Codeforces / 牛客', intro: '洛谷适合从基础到进阶的算法训练，题目难度分级清晰；Codeforces 是国际顶级的算法竞赛平台，全英文，适合打 ACM；牛客网的题单和讨论区对国内求职和蓝桥杯非常友好。', detail: '如果是为了找工作和蓝桥杯，主攻洛谷和牛客；如果是为了冲 ACM，必须刷 Codeforces。不要只看题解，一定要自己敲。建议组队训练，互相讲题，进步最快。', suitable: '准备参加 ACM、蓝桥杯或刷算法题的同学。', link: 'https://www.luogu.com.cn/' },
+      kaogong_res: { icon: '🏛️', title: '考公资料', subtitle: '粉笔 / 华图 / 半月谈', intro: '粉笔的《行测的思维》和《申论的规矩》非常适合入门，配有大量真题；华图在各省省考的资料比较全；半月谈是积累申论素材、了解时政热点的必备APP。', detail: '行测：重点练资料分析、判断推理和言语理解，这三个模块提分最快。申论：不要一上来就写大作文，先练小题（归纳概括、综合分析），大作文靠平时的素材积累和半月谈的评论员文章。', suitable: '决定考公、考选调生的同学。', link: 'https://www.bilibili.com/' },
+      kaoyan_res: { icon: '🎓', title: '考研资料', subtitle: '王道408 / 张宇 / 肖秀荣', intro: '计算机考研（408）必买王道的四本单科书（数据结构、操作系统、计算机网络、计算机组成原理）。数学高数跟张宇或武忠祥，线代李永乐，概率论王式安。政治最后一个月背肖四肖八。', detail: '408 一定要看王道的视频课配合单科书，课后选择题至少刷两遍，大题也要亲自动手写。数学从大三上学期就要开始，每天保证3小时。政治不用开始太早，8月左右开始听课，11月、12月狂背大题。', suitable: '准备考研（尤其是 408 统考）的同学。', link: 'https://www.bilibili.com/' }
+    };
+
+    // ========== 元素引用 ==========
+    const authSection = document.getElementById('authSection');
+    const roadmapSection = document.getElementById('roadmapSection');
+    const adminSection = document.getElementById('adminSection');
+    const toastEl = document.getElementById('toastMessage');
+
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const forgotForm = document.getElementById('forgotForm');
+
+    const loginUsername = document.getElementById('loginUsername');
+    const loginPassword = document.getElementById('loginPassword');
+    const regUsername = document.getElementById('regUsername');
+    const regPassword = document.getElementById('regPassword');
+    const regConfirmPassword = document.getElementById('regConfirmPassword');
+    
+    const forgotUsername = document.getElementById('forgotUsername');
+    const forgotPhone = document.getElementById('forgotPhone');
+    const forgotNewPwd = document.getElementById('forgotNewPwd');
+
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const resetPwdBtn = document.getElementById('resetPwdBtn');
+    
+    const logoutBtn = document.getElementById('logoutBtn');
+    const switchToRegister = document.getElementById('switchToRegister');
+    const switchToLogin = document.getElementById('switchToLogin');
+    const goForgotPwd = document.getElementById('goForgotPwd');
+    const backToLoginBtn = document.getElementById('backToLoginBtn');
+
+    const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+    const adminGreet = document.getElementById('adminGreet');
+
+    const greetUser = document.getElementById('greetUser');
+    const bindPhoneBanner = document.getElementById('bindPhoneBanner');
+    const goBindPhoneBtn = document.getElementById('goBindPhoneBtn');
+
+    // 个人主页
+    const userChip = document.getElementById('userChip');
+    const chipAvatar = document.getElementById('chipAvatar');
+    const profileSection = document.getElementById('profileSection');
+    const profileBackBtn = document.getElementById('profileBackBtn');
+    const profileEditBtn = document.getElementById('profileEditBtn');
+    const profileMainView = document.getElementById('profileMainView');
+    const profileEditView = document.getElementById('profileEditView');
+    const profileLogoutBtn = document.getElementById('profileLogoutBtn');
+    const profileBindBtn = document.getElementById('profileBindBtn');
+    const profileTabEls = document.querySelectorAll('#profileSection .profile-tab');
+    const editNickname = document.getElementById('editNickname');
+    const editGrade = document.getElementById('editGrade');
+    const editSchool = document.getElementById('editSchool');
+    const editMajor = document.getElementById('editMajor');
+    const editBio = document.getElementById('editBio');
+    const bioCount = document.getElementById('bioCount');
+    const avatarPicker = document.getElementById('avatarPicker');
+    const profileSaveBtn = document.getElementById('profileSaveBtn');
+    const profileCancelBtn = document.getElementById('profileCancelBtn');
+
+    // 管理员主页
+    const adminChip = document.getElementById('adminChip');
+    const adminChipAvatar = document.getElementById('adminChipAvatar');
+    const adminProfileSection = document.getElementById('adminProfileSection');
+    const aProfileBackBtn = document.getElementById('aProfileBackBtn');
+    const aProfileEditBtn = document.getElementById('aProfileEditBtn');
+    const adminProfileMainView = document.getElementById('adminProfileMainView');
+    const adminProfileEditView = document.getElementById('adminProfileEditView');
+    const aProfileLogoutBtn = document.getElementById('aProfileLogoutBtn');
+    const aProfileTabEls = document.querySelectorAll('#adminProfileSection .profile-tab');
+    const aEditNickname = document.getElementById('aEditNickname');
+    const aEditTitle = document.getElementById('aEditTitle');
+    const aEditBio = document.getElementById('aEditBio');
+    const aBioCount = document.getElementById('aBioCount');
+    const aAvatarPicker = document.getElementById('aAvatarPicker');
+    const aProfileSaveBtn = document.getElementById('aProfileSaveBtn');
+    const aProfileCancelBtn = document.getElementById('aProfileCancelBtn');
+
+    const pathCards = document.querySelectorAll('.path-card');
+    const navItems = document.querySelectorAll('.nav-item');
+    const contentPanels = document.querySelectorAll('.content-panel');
+    const deepseekJumpBtn = document.getElementById('deepseekJumpBtn');
+    const aiQCards = document.querySelectorAll('.ai-q-card');
+    
+    const myStudyRecordsContainer = document.getElementById('myStudyRecordsContainer');
+
+    const adminNavItems = document.querySelectorAll('.admin-nav-item');
+    const adminPanels = document.querySelectorAll('.admin-panel');
+    const usersTableBody = document.getElementById('usersTableBody');
+    const recentUsersBody = document.getElementById('recentUsersBody');
+    const questionList = document.getElementById('questionList');
+    const studyRecordsTableBody = document.getElementById('studyRecordsTableBody');
+    const logsTableBody = document.getElementById('logsTableBody');
+    const userSearch = document.getElementById('userSearch');
+    const clearQuestionsBtn = document.getElementById('clearQuestionsBtn');
+    const clearStudyRecordsBtn = document.getElementById('clearStudyRecordsBtn');
+    const clearLogsBtn = document.getElementById('clearLogsBtn');
+
+    // 自习室元素
+    const startStudyBtn = document.getElementById('startStudyBtn');
+    const fullscreenStudy = document.getElementById('fullscreenStudy');
+    const timerView = document.getElementById('timerView');
+    const recordView = document.getElementById('recordView');
+    const studyTimerDisplay = document.getElementById('studyTimerDisplay');
+    const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
+    const endStudyBtn = document.getElementById('endStudyBtn');
+    const miniPlayer = document.getElementById('miniPlayer');
+    const miniTimer = document.getElementById('miniTimer');
+    const modalDuration = document.getElementById('modalDuration');
+    const studyNote = document.getElementById('studyNote');
+    const saveStudyRecordBtn = document.getElementById('saveStudyRecordBtn');
+
+    // ========== Toast ==========
+    let toastTimer = null;
+    function showToast(message, type = 'info') {
+      if (toastTimer) clearTimeout(toastTimer);
+      toastEl.textContent = message;
+      toastEl.className = 'toast-message';
+      if (type === 'success') toastEl.classList.add('success');
+      if (type === 'error') toastEl.classList.add('error');
+      if (type === 'admin') toastEl.classList.add('admin');
+      void toastEl.offsetWidth;
+      toastEl.classList.add('show');
+      toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2800);
+    }
+
+    // ========== 本地存储 ==========
+    function getUsers() { try { return JSON.parse(localStorage.getItem('cs_path_users') || '{}'); } catch { return {}; } }
+    function saveUsers(users) { localStorage.setItem('cs_path_users', JSON.stringify(users)); }
+    function getUserMeta() { try { return JSON.parse(localStorage.getItem('cs_path_user_meta') || '{}'); } catch { return {}; } }
+    function saveUserMeta(meta) { localStorage.setItem('cs_path_user_meta', JSON.stringify(meta)); }
+    function getQuestions() { try { return JSON.parse(localStorage.getItem('cs_path_questions') || '[]'); } catch { return []; } }
+    function saveQuestions(q) { localStorage.setItem('cs_path_questions', JSON.stringify(q)); }
+    function getStudyRecords() { try { return JSON.parse(localStorage.getItem('cs_path_study_records') || '[]'); } catch { return []; } }
+    function saveStudyRecords(r) { localStorage.setItem('cs_path_study_records', JSON.stringify(r)); }
+    function getLogs() { try { return JSON.parse(localStorage.getItem('cs_path_logs') || '[]'); } catch { return []; } }
+    function saveLogs(logs) { localStorage.setItem('cs_path_logs', JSON.stringify(logs)); }
+    
+    function getSkillProgress() { try { return JSON.parse(localStorage.getItem('cs_path_skills') || '{}'); } catch { return {}; } }
+    function saveSkillProgress(progress) { localStorage.setItem('cs_path_skills', JSON.stringify(progress)); }
+
+    function addLog(action, detail) {
+      const logs = getLogs();
+      logs.unshift({ time: new Date().toLocaleString('zh-CN'), action, detail });
+      if (logs.length > 200) logs.pop();
+      saveLogs(logs);
+    }
+
+    function setCurrentUser(u) { if (u) localStorage.setItem('cs_path_currentUser', u); else localStorage.removeItem('cs_path_currentUser'); }
+    function getCurrentUser() { return localStorage.getItem('cs_path_currentUser'); }
+    function setAdminUser(u) { if (u) localStorage.setItem('cs_path_adminUser', u); else localStorage.removeItem('cs_path_adminUser'); }
+    function getAdminUser() { return localStorage.getItem('cs_path_adminUser'); }
+
+    // ========== 页面显隐控制 ==========
+    function hideAllMain() {
+      authSection.classList.add('hide');
+      roadmapSection.classList.remove('show');
+      adminSection.classList.remove('show');
+      profileSection.classList.remove('show');
+      adminProfileSection.classList.remove('show');
+    }
+
+    function showLoginForm() {
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      forgotForm.classList.add('hidden');
+      // 回到登录页时清空账号密码，避免退出后仍回显用户名/密码
+      loginUsername.value = ''; loginPassword.value = '';
+      regUsername.value = ''; regPassword.value = ''; regConfirmPassword.value = '';
+      forgotUsername.value = ''; forgotPhone.value = ''; forgotNewPwd.value = '';
+    }
+    function showRegisterForm(prefill = '') {
+      tabRegister.classList.add('active');
+      tabLogin.classList.remove('active');
+      registerForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+      forgotForm.classList.add('hidden');
+      loginUsername.value = ''; loginPassword.value = '';
+      if (prefill) regUsername.value = prefill;
+    }
+    function showForgotForm() {
+      tabLogin.classList.remove('active');
+      tabRegister.classList.remove('active');
+      loginForm.classList.add('hidden');
+      registerForm.classList.add('hidden');
+      forgotForm.classList.remove('hidden');
+      forgotUsername.value = ''; forgotPhone.value = ''; forgotNewPwd.value = '';
+    }
+
+    tabLogin.addEventListener('click', showLoginForm);
+    tabRegister.addEventListener('click', showRegisterForm);
+    switchToRegister.addEventListener('click', () => showRegisterForm());
+    switchToLogin.addEventListener('click', showLoginForm);
+    goForgotPwd.addEventListener('click', showForgotForm);
+    backToLoginBtn.addEventListener('click', showLoginForm);
+
+    // ========== 核心：登录逻辑 ==========
+    function loginUser(username, password) {
+      if (username === ADMIN_ACCOUNT.username) {
+        if (password !== ADMIN_ACCOUNT.password) {
+          showToast('密码错误', 'error');
+          addLog('管理员登录失败', `账号 ${username} 密码错误`);
+          return false;
+        }
+        setAdminUser(username);
+        setCurrentUser(null);
+        addLog('管理员登录', `管理员 ${username} 登录后台`);
+        enterAdminPanel(username);
+        showToast(`欢迎回来，管理员 ${username}！`, 'admin');
+        return true;
+      }
+
+      const users = getUsers();
+      const user = users[username];
+      if (!user) {
+        showToast('用户名不存在，请先注册', 'error');
+        showRegisterForm(username);
+        return false;
+      }
+      if (user.password !== password) {
+        showToast('密码错误，请重新输入', 'error');
+        return false;
+      }
+      const meta = getUserMeta();
+      if (meta[username] && meta[username].banned) {
+        showToast('该账号已被禁用，请联系管理员', 'error');
+        return false;
+      }
+      setCurrentUser(username);
+      setAdminUser(null);
+      addLog('用户登录', `${username} 登录了系统`);
+      enterRoadmap(username);
+      showToast(`欢迎回来，${username}！`, 'success');
+      return true;
+    }
+
+    // ========== 用户注册 ==========
+    function registerUser() {
+      const username = regUsername.value.trim();
+      const password = regPassword.value.trim();
+      const confirm = regConfirmPassword.value.trim();
+
+      if (!username || !password || !confirm) { showToast('请完整填写所有注册信息', 'error'); return; }
+      if (username === ADMIN_ACCOUNT.username) { showToast('该用户名不可用，请更换', 'error'); return; }
+      if (username.length < 2) { showToast('用户名至少2个字符', 'error'); return; }
+      if (password.length < 6) { showToast('密码至少6位', 'error'); return; }
+      if (password !== confirm) { showToast('两次输入的密码不一致', 'error'); return; }
+
+      const users = getUsers();
+      if (users[username]) { showToast('用户名已存在，请换一个', 'error'); return; }
+
+      users[username] = { password };
+      saveUsers(users);
+      const meta = getUserMeta();
+      meta[username] = { registeredAt: new Date().toLocaleString('zh-CN'), banned: false, phone: '' };
+      saveUserMeta(meta);
+      addLog('用户注册', `新用户 ${username} 注册成功`);
+      showToast('🎉 注册成功，请登录', 'success');
+      showLoginForm();
+      loginUsername.value = username;
+      loginPassword.value = '';
+      setTimeout(() => loginPassword.focus(), 300);
+    }
+
+    // ========== 找回密码 ==========
+    function resetPassword() {
+      const username = forgotUsername.value.trim();
+      const phone = forgotPhone.value.trim();
+      const newPwd = forgotNewPwd.value.trim();
+
+      if (!username || !phone || !newPwd) { showToast('请完整填写找回密码信息', 'error'); return; }
+      if (newPwd.length < 6) { showToast('新密码至少6位', 'error'); return; }
+
+      const users = getUsers();
+      const meta = getUserMeta();
+      const user = users[username];
+      const userMeta = meta[username];
+
+      if (!user) { showToast('用户名不存在', 'error'); return; }
+      if (!userMeta || !userMeta.phone) { showToast('该账号未绑定手机号，无法找回', 'error'); return; }
+      if (userMeta.phone !== phone) { showToast('手机号验证失败，请输入正确的绑定手机号', 'error'); return; }
+
+      user.password = newPwd;
+      saveUsers(users);
+      addLog('找回密码', `用户 ${username} 通过手机号重置了密码`);
+      showToast('🎉 密码重置成功，请登录', 'success');
+      showLoginForm();
+      loginUsername.value = username;
+      loginPassword.value = '';
+    }
+
+    // ========== 进入用户主界面 ==========
+    function enterRoadmap(username) {
+      hideAllMain();
+      roadmapSection.classList.add('show');
+      greetUser.textContent = username;
+      refreshUserChip(username);
+      
+      // 检查是否需要绑定手机号
+      const meta = getUserMeta();
+      if (meta[username] && !meta[username].phone) {
+        bindPhoneBanner.classList.remove('hidden');
+      } else {
+        bindPhoneBanner.classList.add('hidden');
+      }
+
+      navItems.forEach(n => n.classList.remove('active'));
+      contentPanels.forEach(p => p.classList.remove('active'));
+      document.querySelector('.nav-item[data-panel="paths"]').classList.add('active');
+      document.getElementById('panel-paths').classList.add('active');
+      
+      resetAllDetails();
+      renderSkillProgress();
+      renderMyStudyRecords();
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ========== 退出用户 ==========
+    function logout() {
+      setCurrentUser(null);
+      
+      // 清空输入框
+      loginUsername.value = '';
+      loginPassword.value = '';
+      regUsername.value = '';
+      regPassword.value = '';
+      regConfirmPassword.value = '';
+      forgotUsername.value = '';
+      forgotPhone.value = '';
+      forgotNewPwd.value = '';
+
+      hideAllMain();
+      authSection.classList.remove('hide');
+      showLoginForm();
+      showToast('已退出登录', 'info');
+    }
+
+    // ========== 绑定手机号 ==========
+    function bindPhoneFlow() {
+      const currentUser = getCurrentUser();
+      if (!currentUser) return false;
+
+      const phone = prompt('请输入您的 11 位手机号：');
+      if (phone === null) return false;
+
+      const trimmedPhone = phone.trim();
+      if (!/^1[3-9]\d{9}$/.test(trimmedPhone)) {
+        showToast('请输入有效的 11 位手机号', 'error');
+        return false;
+      }
+
+      const meta = getUserMeta();
+      if (!meta[currentUser]) meta[currentUser] = {};
+      meta[currentUser].phone = trimmedPhone;
+      saveUserMeta(meta);
+
+      addLog('绑定手机', `用户 ${currentUser} 绑定了手机号 ${trimmedPhone}`);
+      showToast('🎉 手机号绑定成功！可用于找回密码', 'success');
+      bindPhoneBanner.classList.add('hidden');
+      return true;
+    }
+
+    goBindPhoneBtn.addEventListener('click', () => {
+      bindPhoneFlow();
+    });
+
+    // ========== 进入管理员后台 ==========
+    function enterAdminPanel(username) {
+      hideAllMain();
+      adminSection.classList.add('show');
+      refreshAdminChip();
+      adminNavItems.forEach(n => n.classList.remove('active'));
+      adminPanels.forEach(p => p.classList.remove('active'));
+      document.querySelector('.admin-nav-item[data-apanel="dashboard"]').classList.add('active');
+      document.getElementById('apanel-dashboard').classList.add('active');
+      refreshAdminData();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ========== 管理员后台渲染逻辑 ==========
+    function refreshAdminData() {
+      const users = getUsers();
+      const meta = getUserMeta();
+      const questions = getQuestions();
+      const studyRecords = getStudyRecords();
+      const logs = getLogs();
+
+      const usernames = Object.keys(users);
+      const activeCount = usernames.filter(u => !(meta[u] && meta[u].banned)).length;
+      const bannedCount = usernames.filter(u => meta[u] && meta[u].banned).length;
+
+      document.getElementById('statUsers').textContent = usernames.length;
+      document.getElementById('statActive').textContent = activeCount;
+      document.getElementById('statBanned').textContent = bannedCount;
+      document.getElementById('statQuestions').textContent = questions.length;
+
+      const recent = usernames
+        .map(u => ({ username: u, ...(meta[u] || {}) }))
+        .sort((a, b) => new Date(b.registeredAt || 0) - new Date(a.registeredAt || 0))
+        .slice(0, 5);
+      renderRecentUsers(recent);
+      renderUsersTable(usernames, meta, users);
+      renderQuestions(questions);
+      renderStudyRecords(studyRecords);
+      renderLogs(logs);
+    }
+
+    function renderRecentUsers(recent) {
+      if (!recent.length) {
+        recentUsersBody.innerHTML = `<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">👤</div><p>暂无注册用户</p></div></td></tr>`;
+        return;
+      }
+      recentUsersBody.innerHTML = recent.map(u => `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">${(u.username || '?').charAt(0).toUpperCase()}</div>
+              <div>
+                <div class="user-name">${escapeHtml(u.username)}</div>
+                <div class="user-sub">ID: ${escapeHtml(u.username)}</div>
+              </div>
+            </div>
+          </td>
+          <td>${escapeHtml(u.registeredAt || '—')}</td>
+          <td>${u.banned ? '<span class="status-badge status-banned">已禁用</span>' : '<span class="status-badge status-active">正常</span>'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderUsersTable(usernames, meta, users) {
+      const keyword = userSearch.value.trim().toLowerCase();
+      const filtered = usernames.filter(u => u.toLowerCase().includes(keyword));
+
+      if (!filtered.length) {
+        usersTableBody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🔍</div><p>没有找到匹配的用户</p></div></td></tr>`;
+        return;
+      }
+
+      usersTableBody.innerHTML = filtered.map(u => {
+        const m = meta[u] || {};
+        const banned = !!m.banned;
+        const pwd = users[u] && users[u].password ? users[u].password : '';
+        const phone = m.phone || '';
+        return `
+          <tr>
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar">${u.charAt(0).toUpperCase()}</div>
+                <div>
+                  <div class="user-name">${escapeHtml(u)}</div>
+                  <div class="user-sub">密码：${escapeHtml(maskPassword(pwd))}</div>
+                </div>
+              </div>
+            </td>
+            <td>${escapeHtml(m.registeredAt || '—')}</td>
+            <td>
+              ${phone ? `<span class="status-phone">📱 ${maskPhone(phone)}</span>` : '<span style="color:#8a7050;font-size:0.75rem;">未绑定</span>'}
+            </td>
+            <td>${banned ? '<span class="status-badge status-banned">已禁用</span>' : '<span class="status-badge status-active">正常</span>'}</td>
+            <td>
+              <div class="action-btns">
+                ${banned
+                  ? `<button class="action-btn success" data-action="unban" data-user="${escapeHtml(u)}">✔ 启用</button>`
+                  : `<button class="action-btn danger" data-action="ban" data-user="${escapeHtml(u)}">🚫 禁用</button>`}
+                <button class="action-btn" data-action="resetPwd" data-user="${escapeHtml(u)}">🔑 重置密码</button>
+                <button class="action-btn danger" data-action="delete" data-user="${escapeHtml(u)}">🗑 删除</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderQuestions(questions) {
+      if (!questions.length) {
+        questionList.innerHTML = `<div class="empty-state"><div class="empty-icon">❓</div><p>暂时没有 AI 提问记录<br>用户点击 AI 问答卡片时会记录下来</p></div>`;
+        return;
+      }
+      questionList.innerHTML = questions.map(q => `
+        <div class="question-item">
+          <div class="question-meta">
+            <div class="question-user"><i>👤</i> ${escapeHtml(q.user || '匿名用户')}</div>
+            <div class="question-time">${escapeHtml(q.time || '')}</div>
+          </div>
+          <div class="question-content">${escapeHtml(q.question || '')}</div>
+          <div class="question-tag">AI 问答</div>
+        </div>
+      `).join('');
+    }
+
+    function renderStudyRecords(records) {
+      if (!records.length) {
+        studyRecordsTableBody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📖</div><p>暂无自习记录</p></div></td></tr>`;
+        return;
+      }
+      studyRecordsTableBody.innerHTML = records.map(r => `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <div class="user-avatar">${(r.user || '?').charAt(0).toUpperCase()}</div>
+              <div class="user-name">${escapeHtml(r.user)}</div>
+            </div>
+          </td>
+          <td><span style="color:#00e0ff; font-weight:600;">${escapeHtml(r.duration)}</span></td>
+          <td>${escapeHtml(r.time)}</td>
+          <td style="max-width:300px; word-wrap:break-word; line-height:1.5;">${escapeHtml(r.note)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderLogs(logs) {
+      if (!logs.length) {
+        logsTableBody.innerHTML = `<tr><td colspan="3"><div class="empty-state"><div class="empty-icon">📋</div><p>暂无操作日志</p></div></td></tr>`;
+        return;
+      }
+      logsTableBody.innerHTML = logs.slice(0, 50).map(l => `
+        <tr>
+          <td>${escapeHtml(l.time)}</td>
+          <td>${escapeHtml(l.action)}</td>
+          <td>${escapeHtml(l.detail)}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ========== 管理员操作绑定 ==========
+    usersTableBody.addEventListener('click', (e) => {
+      const btn = e.target.closest('.action-btn');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const username = btn.dataset.user;
+      if (!action || !username) return;
+
+      const users = getUsers();
+      const meta = getUserMeta();
+      if (!meta[username]) meta[username] = {};
+
+      if (action === 'ban') {
+        meta[username].banned = true;
+        saveUserMeta(meta);
+        addLog('禁用用户', `管理员禁用了 ${username}`);
+        showToast(`已禁用用户 ${username}`, 'error');
+      } else if (action === 'unban') {
+        meta[username].banned = false;
+        saveUserMeta(meta);
+        addLog('启用用户', `管理员启用了 ${username}`);
+        showToast(`已启用用户 ${username}`, 'success');
+      } else if (action === 'resetPwd') {
+        const newPwd = prompt(`请输入 ${username} 的新密码（至少6位）：`);
+        if (newPwd === null) return;
+        if (newPwd.length < 6) { showToast('密码至少6位', 'error'); return; }
+        if (!users[username]) return;
+        users[username].password = newPwd;
+        saveUsers(users);
+        addLog('重置密码', `管理员重置了 ${username} 的密码`);
+        showToast(`已重置 ${username} 的密码`, 'success');
+      } else if (action === 'delete') {
+        if (!confirm(`确定要删除用户 ${username} 吗？此操作不可恢复。`)) return;
+        delete users[username];
+        delete meta[username];
+        saveUsers(users);
+        saveUserMeta(meta);
+        addLog('删除用户', `管理员删除了用户 ${username}`);
+        showToast(`已删除用户 ${username}`, 'error');
+      }
+      refreshAdminData();
+    });
+
+    userSearch.addEventListener('input', refreshAdminData);
+
+    clearQuestionsBtn.addEventListener('click', () => {
+      if (!confirm('确定要清空所有 AI 提问记录吗？')) return;
+      saveQuestions([]);
+      addLog('清空提问记录', '管理员清空了所有 AI 提问记录');
+      refreshAdminData();
+      showToast('已清空提问记录', 'success');
+    });
+
+    clearStudyRecordsBtn.addEventListener('click', () => {
+      if (!confirm('确定要清空所有自习记录吗？')) return;
+      saveStudyRecords([]);
+      addLog('清空自习记录', '管理员清空了所有自习记录');
+      refreshAdminData();
+      showToast('已清空自习记录', 'success');
+    });
+
+    clearLogsBtn.addEventListener('click', () => {
+      if (!confirm('确定要清空所有操作日志吗？')) return;
+      saveLogs([]);
+      refreshAdminData();
+      showToast('已清空日志', 'success');
+    });
+
+    adminLogoutBtn.addEventListener('click', () => {
+      setAdminUser(null);
+      addLog('管理员退出', '管理员退出了后台');
+      // 退出后台后彻底清空登录表单，不再显示管理员用户名与密码
+      loginUsername.value = '';
+      loginPassword.value = '';
+      regUsername.value = ''; regPassword.value = ''; regConfirmPassword.value = '';
+      forgotUsername.value = ''; forgotPhone.value = ''; forgotNewPwd.value = '';
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      hideAllMain();
+      authSection.classList.remove('show');
+      authSection.classList.remove('hide');
+      showLoginForm();
+      showToast('已退出管理员后台', 'info');
+    });
+
+    adminNavItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const panelId = this.dataset.apanel;
+        adminNavItems.forEach(n => n.classList.remove('active'));
+        adminPanels.forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('apanel-' + panelId).classList.add('active');
+        refreshAdminData();
+      });
+    });
+
+    // ========== 用户事件绑定 ==========
+    loginBtn.addEventListener('click', e => {
+      e.preventDefault();
+      const u = loginUsername.value.trim(), p = loginPassword.value.trim();
+      if (!u || !p) { showToast('请输入用户名和密码', 'error'); return; }
+      loginUser(u, p);
+    });
+    loginPassword.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); loginBtn.click(); } });
+    loginUsername.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); loginPassword.focus(); } });
+    
+    registerBtn.addEventListener('click', e => { e.preventDefault(); registerUser(); });
+    regConfirmPassword.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); registerBtn.click(); } });
+    
+    resetPwdBtn.addEventListener('click', e => { e.preventDefault(); resetPassword(); });
+    forgotNewPwd.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); resetPwdBtn.click(); } });
+
+    logoutBtn.addEventListener('click', logout);
+
+    // ========== 导航切换 ==========
+    navItems.forEach(item => {
+      item.addEventListener('click', function() {
+        const panelId = this.dataset.panel;
+        navItems.forEach(n => n.classList.remove('active'));
+        contentPanels.forEach(p => p.classList.remove('active'));
+        this.classList.add('active');
+        document.getElementById('panel-' + panelId).classList.add('active');
+        resetAllDetails();
+        if (panelId === 'study') {
+          renderMyStudyRecords();
+        }
+      });
+    });
+
+    // ========== 详情页控制逻辑 ==========
+    function resetAllDetails() {
+      document.getElementById('pathListView').style.display = 'block';
+      document.getElementById('pathDetailView').classList.remove('active');
+      document.getElementById('planListView').style.display = 'block';
+      document.getElementById('planDetailView').classList.remove('active');
+      document.getElementById('certListView').style.display = 'block';
+      document.getElementById('certDetailView').classList.remove('active');
+      document.getElementById('resourceListView').style.display = 'block';
+      document.getElementById('resourceDetailView').classList.remove('active');
+    }
+
+    // 1. 专业方向
+    pathCards.forEach(card => {
+      card.addEventListener('click', function() {
+        const pathKey = this.dataset.path;
+        const data = PATH_DATA[pathKey];
+        if (!data) return;
+        
+        document.getElementById('pathListView').style.display = 'none';
+        document.getElementById('pathDetailView').classList.add('active');
+        
+        document.getElementById('detailIcon').textContent = data.icon;
+        document.getElementById('detailTitle').textContent = data.title;
+        document.getElementById('detailSubtitle').textContent = data.subtitle;
+        
+        let html = `
+          <div class="detail-section">
+            <h4>📖 方向介绍</h4>
+            <p>${escapeHtml(data.intro)}</p>
+          </div>
+        `;
+        // 类别型方向（如开发类 / 基础架构类）额外展示其下的细分方向
+        if (data.subs && data.subs.length) {
+          html += `
+          <div class="detail-section">
+            <h4>🧩 细分方向</h4>
+            <div class="detail-grid">
+              ${data.subs.map(s => `<div class="step-box"><h5>${escapeHtml(s.name)}</h5><p>${escapeHtml(s.desc)}</p></div>`).join('')}
+            </div>
+          </div>
+          `;
+        }
+        html += `
+          <div class="detail-section">
+            <h4>⚙️ 核心技能要求</h4>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; margin-top:0.5rem;">
+        `;
+        data.skills.forEach(s => {
+          html += `<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.9rem; color:#9bc7dd;">
+            <span>${escapeHtml(s.name)}</span>
+            <div class="skill-bar" style="width:150px;"><div class="skill-bar-fill" style="width:${s.level}%"></div></div>
+          </div>`;
+        });
+        html += `</div></div>
+          <div class="detail-section">
+            <h4>🗺️ 推荐学习路线</h4>
+            <div class="detail-grid">
+        `;
+        data.roadmap.forEach(step => {
+          html += `<div class="step-box"><h5>📌 ${escapeHtml(step.title)}</h5><p>${escapeHtml(step.desc)}</p></div>`;
+        });
+        html += `</div></div>
+          <div class="detail-section">
+            <h4>📜 推荐考取证书</h4>
+            <div style="margin-top:0.5rem;">${data.certs.map(c => `<span class="cert-tag">${escapeHtml(c)}</span>`).join('')}</div>
+          </div>
+          <div class="detail-section">
+            <h4>📚 推荐学习资源</h4>
+            <ul style="margin-top:0.5rem;">${data.resources.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
+          </div>
+        `;
+        document.getElementById('detailBody').innerHTML = html;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    document.getElementById('backToListBtn').addEventListener('click', () => {
+      document.getElementById('pathDetailView').classList.remove('active');
+      document.getElementById('pathListView').style.display = 'block';
+    });
+
+    // 2. 大学规划
+    document.querySelectorAll('.timeline-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const year = this.dataset.year;
+        const data = PLAN_DATA[year];
+        if (!data) return;
+        
+        document.getElementById('planListView').style.display = 'none';
+        document.getElementById('planDetailView').classList.add('active');
+        
+        document.getElementById('planDetailIcon').textContent = data.icon;
+        document.getElementById('planDetailTitle').textContent = data.title;
+        document.getElementById('planDetailSubtitle').textContent = data.subtitle;
+        
+        let html = `
+          <div class="detail-section">
+            <h4>🎯 核心目标</h4>
+            <p>${escapeHtml(data.goals)}</p>
+          </div>
+          <div class="detail-section">
+            <h4>📋 具体任务清单</h4>
+            <ul style="margin-top:0.5rem;">${data.tasks.map(t => `<li>${escapeHtml(t)}</li>`).join('')}</ul>
+          </div>
+          <div class="detail-section">
+            <h4>⚠️ 避坑指南</h4>
+            <p style="color:#ff8fa3;">${escapeHtml(data.pitfalls)}</p>
+          </div>
+          <div class="detail-section">
+            <h4>📚 资源推荐</h4>
+            <ul style="margin-top:0.5rem;">${data.resources.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
+          </div>
+        `;
+        document.getElementById('planDetailBody').innerHTML = html;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    document.getElementById('backToPlanBtn').addEventListener('click', () => {
+      document.getElementById('planDetailView').classList.remove('active');
+      document.getElementById('planListView').style.display = 'block';
+    });
+
+    // 3. 证书考取
+    document.querySelectorAll('.cert-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const key = this.dataset.cert;
+        const data = CERT_DATA[key];
+        if (!data) return;
+        
+        document.getElementById('certListView').style.display = 'none';
+        document.getElementById('certDetailView').classList.add('active');
+        
+        document.getElementById('certDetailIcon').textContent = data.icon;
+        document.getElementById('certDetailTitle').textContent = data.title;
+        document.getElementById('certDetailSubtitle').textContent = data.subtitle;
+        
+        let html = `
+          <div class="detail-section">
+            <h4>📖 证书介绍</h4>
+            <p>${escapeHtml(data.intro)}</p>
+          </div>
+          <div class="detail-section">
+            <h4>📋 关键信息</h4>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-top:0.5rem;">
+              ${data.details.map(d => `
+                <div style="background:rgba(0,20,30,0.4); padding:0.8rem; border-radius:10px; border-left:2px solid #7c4dff;">
+                  <div style="font-size:0.8rem; color:#8bb8d0; margin-bottom:0.2rem;">${escapeHtml(d.label)}</div>
+                  <div style="color:#d6f0ff; font-weight:500;">${escapeHtml(d.value)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="detail-section">
+            <h4>💡 备考/准备建议</h4>
+            <p>${escapeHtml(data.tips)}</p>
+          </div>
+        `;
+        document.getElementById('certDetailBody').innerHTML = html;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    document.getElementById('backToCertBtn').addEventListener('click', () => {
+      document.getElementById('certDetailView').classList.remove('active');
+      document.getElementById('certListView').style.display = 'block';
+    });
+
+    // 4. 学习资源
+    document.querySelectorAll('.resource-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const key = this.dataset.res;
+        const data = RES_DATA[key];
+        if (!data) return;
+        
+        document.getElementById('resourceListView').style.display = 'none';
+        document.getElementById('resourceDetailView').classList.add('active');
+        
+        document.getElementById('resDetailIcon').textContent = data.icon;
+        document.getElementById('resDetailTitle').textContent = data.title;
+        document.getElementById('resDetailSubtitle').textContent = data.subtitle;
+        
+        let html = `
+          <div class="detail-section">
+            <h4>📖 资源介绍</h4>
+            <p>${escapeHtml(data.intro)}</p>
+          </div>
+          <div class="detail-section">
+            <h4>💡 使用建议</h4>
+            <p>${escapeHtml(data.detail)}</p>
+          </div>
+          <div class="detail-section">
+            <h4>🎯 适合人群</h4>
+            <p style="color:#7ae0ff;">${escapeHtml(data.suitable)}</p>
+          </div>
+          <div class="detail-section">
+            <h4>🔗 外部链接</h4>
+            <p><a href="${data.link}" target="_blank" style="color:#00c8ff; text-decoration:underline;">${data.link}</a></p>
+          </div>
+        `;
+        document.getElementById('resDetailBody').innerHTML = html;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    document.getElementById('backToResBtn').addEventListener('click', () => {
+      document.getElementById('resourceDetailView').classList.remove('active');
+      document.getElementById('resourceListView').style.display = 'block';
+    });
+
+    // 5. 技能清单打卡
+    function renderSkillProgress() {
+      const progress = getSkillProgress();
+      document.querySelectorAll('.skill-item[data-skill]').forEach(item => {
+        const skillId = item.dataset.skill;
+        if (progress[skillId]) {
+          item.classList.add('mastered');
+        } else {
+          item.classList.remove('mastered');
+        }
+      });
+    }
+    
+    document.querySelectorAll('.skill-item[data-skill]').forEach(item => {
+      item.addEventListener('click', function() {
+        const skillId = this.dataset.skill;
+        const progress = getSkillProgress();
+        if (progress[skillId]) {
+          delete progress[skillId];
+          this.classList.remove('mastered');
+          showToast('已取消掌握标记', 'info');
+        } else {
+          progress[skillId] = true;
+          this.classList.add('mastered');
+          showToast('🎉 标记为已掌握', 'success');
+        }
+        saveSkillProgress(progress);
+      });
+    });
+
+    // ========== 用户自己的自习记录 ==========
+    function renderMyStudyRecords() {
+      const currentUser = getCurrentUser();
+      if (!currentUser) return;
+      
+      const records = getStudyRecords();
+      const myRecords = records.filter(r => r.user === currentUser);
+
+      if (!myRecords.length) {
+        myStudyRecordsContainer.innerHTML = `<div class="empty-state" style="padding: 1.5rem 0;"><p>暂无学习记录，快去开启一次专注自习吧！</p></div>`;
+        return;
+      }
+
+      myStudyRecordsContainer.innerHTML = myRecords.map(r => `
+        <div class="my-study-item">
+          <div class="my-study-meta">
+            <span>📅 ${escapeHtml(r.time)}</span>
+            <span class="duration">⏱️ 专注时长：${escapeHtml(r.duration)}</span>
+          </div>
+          <div class="my-study-note">📝 ${escapeHtml(r.note)}</div>
+        </div>
+      `).join('');
+    }
+
+    // ========== 个人主页（独立页面） ==========
+    const AVATAR_OPTIONS = ['🧑‍💻', '👨‍🎓', '👩‍🎓', '🚀', '🐱', '🤖', '🌙', '🔥'];
+    let pendingAvatar = '';
+
+    function getProfiles() { try { return JSON.parse(localStorage.getItem('cs_path_profiles') || '{}'); } catch (e) { return {}; } }
+    function saveProfiles(p) { localStorage.setItem('cs_path_profiles', JSON.stringify(p)); }
+    function getProfile(username) { return getProfiles()[username] || {}; }
+
+    function getDisplayName(username) {
+      const p = getProfile(username);
+      return (p.nickname && String(p.nickname).trim()) || username;
+    }
+    function getAvatarText(username) {
+      const p = getProfile(username);
+      if (p.avatar) return p.avatar;
+      return String(username || '同').trim().charAt(0).toUpperCase();
+    }
+    function refreshUserChip(username) {
+      const name = username || getCurrentUser();
+      if (!name || !greetUser || !chipAvatar) return;
+      greetUser.textContent = getDisplayName(name);
+      chipAvatar.textContent = getAvatarText(name);
+    }
+
+    function getMyStudyRecords(username) {
+      return getStudyRecords().filter(r => r.user === username);
+    }
+    function getMyQuestions(username) {
+      return getQuestions().filter(q => q.user === username);
+    }
+    // 把 "HH:MM:SS" 或 seconds 字段统一换算成秒
+    function recordSeconds(r) {
+      if (typeof r.seconds === 'number') return r.seconds;
+      const m = String(r.duration || '').match(/(\d+):(\d{2}):(\d{2})/);
+      if (!m) return 0;
+      return parseInt(m[1], 10) * 3600 + parseInt(m[2], 10) * 60 + parseInt(m[3], 10);
+    }
+    function formatTotalDuration(sec) {
+      const h = Math.floor(sec / 3600);
+      const m = Math.round((sec % 3600) / 60);
+      return h > 0 ? `${h} 小时 ${m} 分` : `${m} 分钟`;
+    }
+    function daysSince(dateStr) {
+      const t = new Date(dateStr).getTime();
+      if (isNaN(t)) return null;
+      return Math.max(1, Math.floor((Date.now() - t) / 86400000) + 1);
+    }
+
+    function renderProfile() {
+      const username = getCurrentUser();
+      if (!username) return;
+
+      const profile = getProfile(username);
+      const meta = getUserMeta()[username] || {};
+      const records = getMyStudyRecords(username);
+      const questions = getMyQuestions(username);
+      const totalSeconds = records.reduce((sum, r) => sum + recordSeconds(r), 0);
+      const masteredSkills = Object.values(getSkillProgress()).filter(Boolean).length;
+      const joinedDays = meta.registeredAt ? daysSince(meta.registeredAt) : null;
+      const displayName = getDisplayName(username);
+
+      // 头像 / 昵称 / 账号
+      document.getElementById('profileAvatar').textContent = getAvatarText(username);
+      document.getElementById('profileName').textContent = displayName;
+      document.getElementById('profileHandle').textContent = '@' + username;
+      document.getElementById('profileBio').textContent =
+        (profile.bio && profile.bio.trim()) || '这个人很懒，还没有填写个人简介～ 点右上角「编辑资料」补充一下吧。';
+
+      // 身份标签
+      const badges = ['<span class="profile-badge">🎓 CS PATH 学员</span>'];
+      if (profile.grade) badges.push(`<span class="profile-badge">📚 ${escapeHtml(profile.grade)}</span>`);
+      if (profile.major) badges.push(`<span class="profile-badge">💡 ${escapeHtml(profile.major)}</span>`);
+      if (joinedDays) badges.push(`<span class="profile-badge">📅 已加入 ${joinedDays} 天</span>`);
+      if (records.length) badges.push(`<span class="profile-badge">🔥 自习 ${records.length} 次</span>`);
+      if (!meta.phone) badges.push('<span class="profile-badge warn">⚠️ 未绑定手机号</span>');
+      document.getElementById('profileBadges').innerHTML = badges.join('');
+
+      // 数据概览
+      document.getElementById('pStatSessions').textContent = records.length;
+      document.getElementById('pStatHours').textContent = totalSeconds >= 3600
+        ? (totalSeconds / 3600).toFixed(1) + 'h'
+        : Math.round(totalSeconds / 60) + 'm';
+      document.getElementById('pStatQuestions').textContent = questions.length;
+      document.getElementById('pStatSkills').textContent = masteredSkills;
+
+      // 基本资料
+      const infoRows = [
+        ['昵称', displayName],
+        ['账号', username],
+        ['学校', profile.school || '未填写'],
+        ['专业 / 方向', profile.major || '未填写'],
+        ['年级', profile.grade || '未填写'],
+        ['手机号', meta.phone ? maskPhone(meta.phone) : '未绑定'],
+        ['注册时间', meta.registeredAt || '—'],
+        ['账号状态', meta.banned ? '已被禁用' : '正常'],
+        ['累计自习', formatTotalDuration(totalSeconds)],
+        ['最近自习', records.length ? records[0].time : '—']
+      ];
+      document.getElementById('profileInfoBody').innerHTML = infoRows.map(([k, v]) =>
+        `<div class="info-row"><span class="info-label">${escapeHtml(k)}</span><span class="info-value">${escapeHtml(String(v))}</span></div>`
+      ).join('');
+
+      // 自习记录
+      const studyBody = document.getElementById('profileStudyBody');
+      if (!records.length) {
+        studyBody.innerHTML = `<div class="profile-empty">还没有自习记录<br>去「自习室」开启一次专注自习吧 ⏱️</div>`;
+      } else {
+        studyBody.innerHTML = records.map(r => `
+          <div class="my-study-item">
+            <div class="my-study-meta">
+              <span>📅 ${escapeHtml(r.time)}</span>
+              <span class="duration">⏱️ 专注时长：${escapeHtml(r.duration)}</span>
+            </div>
+            <div class="my-study-note">📝 ${escapeHtml(r.note)}</div>
+          </div>
+        `).join('');
+      }
+
+      // AI 提问记录
+      const aiBody = document.getElementById('profileAiBody');
+      if (!questions.length) {
+        aiBody.innerHTML = `<div class="profile-empty">还没有向 AI 提问的记录<br>去「AI问答」看看常见问题吧 🤖</div>`;
+      } else {
+        aiBody.innerHTML = questions.map(q => `
+          <div class="my-study-item">
+            <div class="my-study-meta"><span>🤖 我的提问</span><span class="duration">${escapeHtml(q.time)}</span></div>
+            <div class="my-study-note">💬 ${escapeHtml(q.question)}</div>
+          </div>
+        `).join('');
+      }
+
+      // 已绑定手机号则隐藏绑定按钮
+      profileBindBtn.style.display = meta.phone ? 'none' : '';
+    }
+
+    function switchProfilePane(pane) {
+      profileTabEls.forEach(t => t.classList.toggle('active', t.dataset.ppane === pane));
+      document.querySelectorAll('#profileSection .profile-pane').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('ppane-' + pane);
+      if (target) target.classList.add('active');
+    }
+
+    // ---- 页面切换 ----
+    function enterProfile() {
+      if (!getCurrentUser()) return;
+      renderProfile();
+      switchProfilePane('info');
+      profileMainView.style.display = '';
+      profileEditView.style.display = 'none';
+      profileEditBtn.style.display = '';
+      hideAllMain();
+      profileSection.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function leaveProfile() {
+      profileSection.classList.remove('show');
+      profileMainView.style.display = '';
+      profileEditView.style.display = 'none';
+      profileEditBtn.style.display = '';
+      roadmapSection.classList.add('show');
+      renderMyStudyRecords();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ---- 编辑资料 ----
+    function buildAvatarPicker(current) {
+      pendingAvatar = current || '';
+      const opts = [`<div class="avatar-opt ${pendingAvatar ? '' : 'active'}" data-avatar="" title="使用用户名首字母">🔤</div>`];
+      AVATAR_OPTIONS.forEach(a => {
+        opts.push(`<div class="avatar-opt ${pendingAvatar === a ? 'active' : ''}" data-avatar="${a}">${a}</div>`);
+      });
+      avatarPicker.innerHTML = opts.join('');
+    }
+
+    function enterEditMode() {
+      const username = getCurrentUser();
+      if (!username) return;
+      const profile = getProfile(username);
+      const meta = getUserMeta()[username] || {};
+
+      editNickname.value = profile.nickname || username;
+      editGrade.value = profile.grade || '';
+      editSchool.value = profile.school || '';
+      editMajor.value = profile.major || '';
+      editBio.value = profile.bio || '';
+      bioCount.textContent = editBio.value.length;
+      buildAvatarPicker(profile.avatar || '');
+
+      profileMainView.style.display = 'none';
+      profileEditView.style.display = '';
+      profileEditBtn.style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function exitEditMode() {
+      profileEditView.style.display = 'none';
+      profileMainView.style.display = '';
+      profileEditBtn.style.display = '';
+    }
+
+    function saveProfile() {
+      const username = getCurrentUser();
+      if (!username) return;
+
+      const nickname = editNickname.value.trim();
+      if (!nickname) { showToast('昵称不能为空', 'error'); editNickname.focus(); return; }
+      if (nickname.length > 16) { showToast('昵称最多 16 个字符', 'error'); return; }
+
+      const profiles = getProfiles();
+      profiles[username] = {
+        nickname: nickname,
+        grade: editGrade.value || '',
+        school: editSchool.value.trim(),
+        major: editMajor.value.trim(),
+        bio: editBio.value.trim(),
+        avatar: pendingAvatar || '',
+        updatedAt: new Date().toLocaleString('zh-CN')
+      };
+      saveProfiles(profiles);
+
+      addLog('修改资料', `用户 ${username} 更新了个人资料`);
+      showToast('✅ 个人资料已保存', 'success');
+      refreshUserChip(username);
+      exitEditMode();
+      renderProfile();
+    }
+
+    // ---- 事件绑定 ----
+    userChip.addEventListener('click', enterProfile);
+    profileBackBtn.addEventListener('click', () => {
+      if (profileEditView.style.display !== 'none') { exitEditMode(); renderProfile(); }
+      else { leaveProfile(); }
+    });
+    profileEditBtn.addEventListener('click', enterEditMode);
+    profileCancelBtn.addEventListener('click', () => { exitEditMode(); renderProfile(); });
+    profileSaveBtn.addEventListener('click', saveProfile);
+    editBio.addEventListener('input', () => { bioCount.textContent = editBio.value.length; });
+    avatarPicker.addEventListener('click', (e) => {
+      const opt = e.target.closest('.avatar-opt');
+      if (!opt) return;
+      pendingAvatar = opt.dataset.avatar || '';
+      avatarPicker.querySelectorAll('.avatar-opt').forEach(o => o.classList.toggle('active', o === opt));
+    });
+    profileTabEls.forEach(t => t.addEventListener('click', () => switchProfilePane(t.dataset.ppane)));
+    profileLogoutBtn.addEventListener('click', () => { logout(); });
+    profileBindBtn.addEventListener('click', () => { if (bindPhoneFlow()) renderProfile(); });
+
+    // ========== 管理员主页（独立页面） ==========
+    let aPendingAvatar = '';
+
+    function getAdminName() { return getAdminUser() || ADMIN_ACCOUNT.username; }
+
+    function refreshAdminChip() {
+      const u = getAdminName();
+      if (!u || !adminGreet || !adminChipAvatar) return;
+      adminGreet.textContent = getDisplayName(u);
+      adminChipAvatar.textContent = getAvatarText(u);
+    }
+
+    function renderAdminProfile() {
+      const u = getAdminName();
+      const p = getProfile(u);
+      const users = getUsers();
+      const meta = getUserMeta();
+      const questions = getQuestions();
+      const records = getStudyRecords();
+      const logs = getLogs();
+      const userCount = Object.keys(users).length;
+
+      document.getElementById('aProfileAvatar').textContent = getAvatarText(u);
+      document.getElementById('aProfileName').textContent = getDisplayName(u);
+      document.getElementById('aProfileHandle').textContent = '@' + u + ' · ' + (p.title || '系统管理员');
+      document.getElementById('aProfileBio').textContent =
+        (p.bio && p.bio.trim()) || '还没有填写简介～ 点右上角「编辑资料」补充一下吧。';
+
+      const badges = ['<span class="profile-badge">🛡️ 系统管理员</span>'];
+      if (p.title) badges.push(`<span class="profile-badge">🏷️ ${escapeHtml(p.title)}</span>`);
+      badges.push(`<span class="profile-badge">👥 管理 ${userCount} 位用户</span>`);
+      badges.push(`<span class="profile-badge">📋 ${logs.length} 条操作日志</span>`);
+      document.getElementById('aProfileBadges').innerHTML = badges.join('');
+
+      document.getElementById('aStatUsers').textContent = userCount;
+      document.getElementById('aStatQuestions').textContent = questions.length;
+      document.getElementById('aStatRecords').textContent = records.length;
+      document.getElementById('aStatLogs').textContent = logs.length;
+
+      const lastLogin = logs.find(l => l.action === '管理员登录');
+      const bannedCount = Object.values(meta).filter(m => m && m.banned).length;
+      const infoRows = [
+        ['账号', u],
+        ['角色', '超级管理员'],
+        ['昵称', getDisplayName(u)],
+        ['头衔 / 职务', p.title || '系统管理员'],
+        ['最近登录', lastLogin ? lastLogin.time : '—'],
+        ['注册用户', userCount + ' 位'],
+        ['已禁用账号', bannedCount + ' 位'],
+        ['AI 提问总数', questions.length + ' 条'],
+        ['自习记录', records.length + ' 条'],
+        ['操作日志', logs.length + ' 条']
+      ];
+      document.getElementById('aProfileInfoBody').innerHTML = infoRows.map(([k, v]) =>
+        `<div class="info-row"><span class="info-label">${escapeHtml(k)}</span><span class="info-value">${escapeHtml(String(v))}</span></div>`
+      ).join('');
+
+      // 用户概览
+      const usersBody = document.getElementById('aProfileUsersBody');
+      const names = Object.keys(users);
+      if (!names.length) {
+        usersBody.innerHTML = `<div class="profile-empty">暂无注册用户</div>`;
+      } else {
+        usersBody.innerHTML = names.map(name => {
+          const m = meta[name] || {};
+          const cnt = records.filter(r => r.user === name).length;
+          return `<div class="my-study-item">
+            <div class="my-study-meta"><span>👤 ${escapeHtml(name)}</span><span class="duration">📖 ${cnt} 次自习</span></div>
+            <div class="my-study-note">${m.banned ? '🚫 已禁用' : '✅ 正常'} · 注册于 ${escapeHtml(m.registeredAt || '—')} · ${m.phone ? '📱 已绑定手机' : '未绑定手机'}</div>
+          </div>`;
+        }).join('');
+      }
+
+      // 管理记录（最近 30 条）
+      const logsBody = document.getElementById('aProfileLogsBody');
+      if (!logs.length) {
+        logsBody.innerHTML = `<div class="profile-empty">暂无操作日志</div>`;
+      } else {
+        logsBody.innerHTML = logs.slice(0, 30).map(l => `
+          <div class="my-study-item">
+            <div class="my-study-meta"><span>📌 ${escapeHtml(l.action)}</span><span class="duration">${escapeHtml(l.time)}</span></div>
+            <div class="my-study-note">${escapeHtml(l.detail)}</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function switchAdminPane(pane) {
+      aProfileTabEls.forEach(t => t.classList.toggle('active', t.dataset.apane === pane));
+      document.querySelectorAll('#adminProfileSection .profile-pane').forEach(p => p.classList.remove('active'));
+      const target = document.getElementById('apane-' + pane);
+      if (target) target.classList.add('active');
+    }
+
+    function enterAdminProfile() {
+      if (!getAdminUser()) return;
+      renderAdminProfile();
+      switchAdminPane('info');
+      adminProfileMainView.style.display = '';
+      adminProfileEditView.style.display = 'none';
+      aProfileEditBtn.style.display = '';
+      hideAllMain();
+      adminProfileSection.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function leaveAdminProfile() {
+      adminProfileSection.classList.remove('show');
+      adminProfileMainView.style.display = '';
+      adminProfileEditView.style.display = 'none';
+      aProfileEditBtn.style.display = '';
+      adminSection.classList.add('show');
+      refreshAdminData();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function buildAdminAvatarPicker(current) {
+      aPendingAvatar = current || '';
+      const opts = [`<div class="avatar-opt ${aPendingAvatar ? '' : 'active'}" data-avatar="" title="使用账号首字母">🔤</div>`];
+      AVATAR_OPTIONS.forEach(a => {
+        opts.push(`<div class="avatar-opt ${aPendingAvatar === a ? 'active' : ''}" data-avatar="${a}">${a}</div>`);
+      });
+      aAvatarPicker.innerHTML = opts.join('');
+    }
+
+    function enterAdminEditMode() {
+      const u = getAdminName();
+      const p = getProfile(u);
+      aEditNickname.value = p.nickname || u;
+      aEditTitle.value = p.title || '系统管理员';
+      aEditBio.value = p.bio || '';
+      aBioCount.textContent = aEditBio.value.length;
+      buildAdminAvatarPicker(p.avatar || '');
+      adminProfileMainView.style.display = 'none';
+      adminProfileEditView.style.display = '';
+      aProfileEditBtn.style.display = 'none';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function exitAdminEditMode() {
+      adminProfileEditView.style.display = 'none';
+      adminProfileMainView.style.display = '';
+      aProfileEditBtn.style.display = '';
+    }
+
+    function saveAdminProfile() {
+      const u = getAdminName();
+      const nickname = aEditNickname.value.trim();
+      if (!nickname) { showToast('昵称不能为空', 'error'); aEditNickname.focus(); return; }
+
+      const profiles = getProfiles();
+      profiles[u] = Object.assign({}, profiles[u] || {}, {
+        nickname: nickname,
+        title: aEditTitle.value.trim(),
+        bio: aEditBio.value.trim(),
+        avatar: aPendingAvatar || '',
+        updatedAt: new Date().toLocaleString('zh-CN')
+      });
+      saveProfiles(profiles);
+
+      addLog('修改资料', '管理员更新了个人资料');
+      showToast('✅ 管理员资料已保存', 'success');
+      refreshAdminChip();
+      exitAdminEditMode();
+      renderAdminProfile();
+    }
+
+    adminChip.addEventListener('click', enterAdminProfile);
+    aProfileBackBtn.addEventListener('click', () => {
+      if (adminProfileEditView.style.display !== 'none') { exitAdminEditMode(); renderAdminProfile(); }
+      else { leaveAdminProfile(); }
+    });
+    aProfileEditBtn.addEventListener('click', enterAdminEditMode);
+    aProfileCancelBtn.addEventListener('click', () => { exitAdminEditMode(); renderAdminProfile(); });
+    aProfileSaveBtn.addEventListener('click', saveAdminProfile);
+    aEditBio.addEventListener('input', () => { aBioCount.textContent = aEditBio.value.length; });
+    aAvatarPicker.addEventListener('click', (e) => {
+      const opt = e.target.closest('.avatar-opt');
+      if (!opt) return;
+      aPendingAvatar = opt.dataset.avatar || '';
+      aAvatarPicker.querySelectorAll('.avatar-opt').forEach(o => o.classList.toggle('active', o === opt));
+    });
+    aProfileTabEls.forEach(t => t.addEventListener('click', () => switchAdminPane(t.dataset.apane)));
+    aProfileLogoutBtn.addEventListener('click', () => { adminLogoutBtn.click(); });
+
+    // ========== 自习室逻辑 ==========
+    let studyInterval = null;
+    let studySeconds = 0;
+    let isFullscreenMode = true;
+
+    function formatTime(sec) {
+      const h = Math.floor(sec / 3600).toString().padStart(2, '0');
+      const m = Math.floor((sec % 3600) / 60).toString().padStart(2, '0');
+      const s = (sec % 60).toString().padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
+
+    function updateTimerDisplay() {
+      const timeStr = formatTime(studySeconds);
+      studyTimerDisplay.textContent = timeStr;
+      miniTimer.textContent = timeStr;
+    }
+
+    function startTimer() {
+      if (studyInterval) clearInterval(studyInterval);
+      studyInterval = setInterval(() => {
+        studySeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (studyInterval) {
+        clearInterval(studyInterval);
+        studyInterval = null;
+      }
+    }
+
+    function enterFullscreen() {
+      isFullscreenMode = true;
+      miniPlayer.classList.remove('active');
+      fullscreenStudy.classList.add('active');
+      
+      // 恢复计时视图
+      timerView.style.display = 'flex';
+      recordView.classList.remove('active');
+
+      if (fullscreenStudy.requestFullscreen) {
+        fullscreenStudy.requestFullscreen().catch(() => {});
+      }
+      startTimer();
+    }
+
+    function exitFullscreenToMini() {
+      isFullscreenMode = false;
+      fullscreenStudy.classList.remove('active');
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+      miniPlayer.classList.add('active');
+    }
+
+    startStudyBtn.addEventListener('click', () => {
+      studySeconds = 0;
+      updateTimerDisplay();
+      enterFullscreen();
+      showToast('🚀 已进入全屏自习模式，按 Esc 可退出全屏', 'success');
+    });
+
+    exitFullscreenBtn.addEventListener('click', () => {
+      exitFullscreenToMini();
+    });
+
+    // 监听 ESC 退出全屏
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement && isFullscreenMode && fullscreenStudy.classList.contains('active')) {
+        exitFullscreenToMini();
+      }
+    });
+
+    // 点击悬浮窗重新全屏
+    miniPlayer.addEventListener('click', () => {
+      enterFullscreen();
+    });
+
+    // 结束自习 -> 切换到全屏内的登记视图
+    endStudyBtn.addEventListener('click', () => {
+      stopTimer();
+      modalDuration.textContent = formatTime(studySeconds);
+      studyNote.value = '';
+      
+      // 切换视图
+      timerView.style.display = 'none';
+      recordView.classList.add('active');
+    });
+
+    // 保存学习记录
+    saveStudyRecordBtn.addEventListener('click', () => {
+      const note = studyNote.value.trim();
+      if (note.length < 1) {
+        showToast('请填写学习内容/心得（不少于1个字）', 'error');
+        return;
+      }
+
+      const currentUser = getCurrentUser();
+      const record = {
+        user: currentUser,
+        duration: formatTime(studySeconds),
+        time: new Date().toLocaleString('zh-CN'),
+        note: note,
+        seconds: studySeconds
+      };
+
+      const records = getStudyRecords();
+      records.unshift(record);
+      if (records.length > 200) records.pop();
+      saveStudyRecords(records);
+
+      addLog('完成自习', `用户 ${currentUser} 自习了 ${formatTime(studySeconds)}`);
+
+      // 退出模式
+      fullscreenStudy.classList.remove('active');
+      miniPlayer.classList.remove('active');
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+      
+      // 重置计时
+      studySeconds = 0;
+      updateTimerDisplay();
+      
+      showToast('🎉 学习记录已保存，继续加油！', 'success');
+
+      // 如果是用户，刷新自己的记录
+      renderMyStudyRecords();
+
+      // 如果是管理员刚好在线也能刷新
+      if (getAdminUser()) {
+        refreshAdminData();
+      }
+    });
+
+    // AI 问答
+    deepseekJumpBtn.addEventListener('click', () => showToast('🚀 正在跳转到 DeepSeek…', 'success'));
+    aiQCards.forEach(card => {
+      card.addEventListener('click', async function() {
+        const question = this.dataset.question || '';
+        if (!question) return;
+
+        const questions = getQuestions();
+        questions.unshift({
+          user: getCurrentUser() || '匿名用户',
+          question: question,
+          time: new Date().toLocaleString('zh-CN')
+        });
+        if (questions.length > 200) questions.pop();
+        saveQuestions(questions);
+        addLog('AI提问', `${getCurrentUser() || '匿名用户'} 提问：${question}`);
+
+        let copied = false;
+        try {
+          await navigator.clipboard.writeText(question);
+          copied = true;
+        } catch (err) {
+          try {
+            const textarea = document.createElement('textarea');
+            textarea.value = question;
+            textarea.style.position = 'fixed'; textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            copied = true;
+          } catch (e2) { copied = false; }
+        }
+
+        if (copied) showToast(`📋 已复制：「${question}」即将跳转 DeepSeek…`, 'success');
+        else showToast(`🚀 即将跳转 DeepSeek，请手动输入问题`, 'info');
+
+        setTimeout(() => window.open(DEEPSEEK_URL, '_blank', 'noopener,noreferrer'), 600);
+      });
+    });
+
+    // ========== 工具函数 ==========
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function maskPassword(pwd) {
+      if (!pwd) return '—';
+      if (pwd.length <= 2) return '*'.repeat(pwd.length);
+      return pwd.charAt(0) + '*'.repeat(pwd.length - 2) + pwd.charAt(pwd.length - 1);
+    }
+    function maskPhone(phone) {
+      if (!phone || phone.length !== 11) return phone;
+      return phone.substring(0, 3) + '****' + phone.substring(7);
+    }
+
+    // ========== 初始化 ==========
+    (function init() {
+      if (!localStorage.getItem('cs_path_admin_initialized')) {
+        localStorage.setItem('cs_path_admin_initialized', '1');
+        addLog('系统初始化', '系统首次启动完成');
+      }
+      
+      // 强制清理一次
+      document.querySelectorAll('input').forEach(input => input.value = '');
+
+      const currentAdmin = getAdminUser();
+      const currentUser = getCurrentUser();
+
+      if (currentAdmin) {
+        enterAdminPanel(currentAdmin);
+      } else if (currentUser) {
+        const meta = getUserMeta();
+        if (meta[currentUser] && meta[currentUser].banned) {
+          setCurrentUser(null);
+          hideAllMain();
+          authSection.classList.remove('hide');
+          showLoginForm();
+          showToast('您的账号已被禁用', 'error');
+        } else {
+          enterRoadmap(currentUser);
+        }
+      } else {
+        hideAllMain();
+        authSection.classList.remove('hide');
+        showLoginForm();
+      }
+    })();
+  })();
+</script>
+</body>
+</html>
